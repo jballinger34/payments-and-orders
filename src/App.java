@@ -1,4 +1,5 @@
 import controller.PaymentController;
+import dao.FilePaymentDao;
 import dao.InMemoryPaymentDao;
 import dao.PaymentDao;
 import domain.model.PaymentMethod;
@@ -17,7 +18,7 @@ import java.util.Map;
 public class App {
 
     public static void main(String[] args){
-        PaymentDao dao = new InMemoryPaymentDao();
+        PaymentDao dao = new FilePaymentDao();
         PaymentGateway gateway = new FakePaymentGateway();
 
         Map<PaymentMethod, PaymentProcessor> processors = new HashMap<>();

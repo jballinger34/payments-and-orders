@@ -1,16 +1,18 @@
 package dao;
 
 import domain.model.Payment;
+import exception.PaymentNotFoundException;
+import exception.PersistenceException;
 
 import java.util.List;
 
 public interface PaymentDao {
 
-    void save(Payment payment);
+    void save(Payment payment) throws PersistenceException;
 
-    Payment findById(String id);
+    Payment findById(String id) throws PaymentNotFoundException, PersistenceException;
 
-    List<Payment> findAll();
+    List<Payment> findAll() throws PersistenceException;
 
 
 
