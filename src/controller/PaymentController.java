@@ -9,7 +9,7 @@ import view.PaymentView;
 
 public class PaymentController {
 
-    private PaymentView view;
+    private final PaymentView view;
     private final PaymentService service;
 
     public PaymentController(PaymentView view, PaymentService paymentService) {

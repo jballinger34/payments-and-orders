@@ -6,6 +6,7 @@ import domain.model.Payment;
 import domain.model.PaymentMethod;
 import domain.model.PaymentStatus;
 import domain.processor.PaymentProcessor;
+import exception.PaymentNotFoundException;
 import exception.PersistenceException;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class PaymentService {
         }
 
     }
-    public void authorizePayment(String paymentId) throws PersistenceException {
+    public void authorizePayment(String paymentId) throws PersistenceException, PaymentNotFoundException {
         Payment payment = dao.findById(paymentId);
         authorizePayment(payment);
     }

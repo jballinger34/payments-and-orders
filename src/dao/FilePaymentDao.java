@@ -5,6 +5,7 @@ import domain.model.Payment;
 import domain.model.PaymentMethod;
 import domain.model.PaymentStatus;
 import exception.InvalidDataException;
+import exception.PaymentNotFoundException;
 import exception.PersistenceException;
 
 import java.io.*;
@@ -12,6 +13,8 @@ import java.util.*;
 
 public class FilePaymentDao implements PaymentDao {
 
+    // currently when we load from file we load the same payment multiple times
+    // but it is overriden at each step because keys are unique (and stay the same for a payment)
     private Map<String, Payment> payments = new HashMap<>();
 
     private static final String DELIMITER = "::";
@@ -29,8 +32,10 @@ public class FilePaymentDao implements PaymentDao {
     }
 
     @Override
-    public Payment findById(String id){
-        return payments.get(id);
+    public Payment findById(String id) throws PaymentNotFoundException {
+        Payment payment = payments.get(id);
+        if(payment == null) throw new PaymentNotFoundException("No payment with ID: " + id);
+        return payment;
     }
 
     @Override
@@ -38,7 +43,7 @@ public class FilePaymentDao implements PaymentDao {
         return new ArrayList<>(payments.values());
     }
 
-    private void loadPayments() throws PersistenceException {
+    private void loadPayments() throws PersistenceException, InvalidDataException {
         Scanner scanner;
         File f = new File(PAYMENTS_FILE);
         try {
