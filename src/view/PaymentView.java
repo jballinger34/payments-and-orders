@@ -32,6 +32,9 @@ public class PaymentView {
         io.print("========================");
     }
 
+    public void displayError(String message){
+        io.print("ERROR: " + message);
+    }
 
     public void setIo(UserIO io) {
         this.io = io;

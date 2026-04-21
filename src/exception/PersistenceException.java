@@ -3,7 +3,7 @@ package exception;
 /**
  * Thrown when there is an external issue loading/writing data
  */
-public class PersistenceException extends RuntimeException {
+public class PersistenceException extends Exception {
     public PersistenceException(String message) {
         super(message);
     }

@@ -17,7 +17,7 @@ public class FilePaymentDao implements PaymentDao {
     private static final String DELIMITER = "::";
     private static final String PAYMENTS_FILE = "payments.txt";
 
-    public FilePaymentDao(){
+    public FilePaymentDao() throws PersistenceException {
         loadPayments();
     }
 
@@ -29,16 +29,16 @@ public class FilePaymentDao implements PaymentDao {
     }
 
     @Override
-    public Payment findById(String id) {
+    public Payment findById(String id){
         return payments.get(id);
     }
 
     @Override
-    public List<Payment> findAll() {
+    public List<Payment> findAll(){
         return new ArrayList<>(payments.values());
     }
 
-    private void loadPayments() {
+    private void loadPayments() throws PersistenceException {
         Scanner scanner;
         File f = new File(PAYMENTS_FILE);
         try {

@@ -1,10 +1,9 @@
 import controller.PaymentController;
-import dao.FilePaymentDao;
-import dao.InMemoryPaymentDao;
-import dao.PaymentDao;
+import dao.*;
 import domain.model.PaymentMethod;
 import domain.processor.CardPaymentProcessor;
 import domain.processor.PaymentProcessor;
+import exception.PersistenceException;
 import gateway.FakePaymentGateway;
 import gateway.PaymentGateway;
 import service.PaymentService;
@@ -17,18 +16,28 @@ import java.util.Map;
 
 public class App {
 
-    public static void main(String[] args){
-        PaymentDao dao = new FilePaymentDao();
+    public static void main(String[] args) {
+        UserIO io = new UserIOConsoleImpl();
+        PaymentView view = new PaymentView(io);
+
+        PaymentDao dao;
+        try {
+            dao = new FilePaymentDao();
+        } catch (PersistenceException e){
+            view.displayError(e.getMessage());
+            return;
+        }
+        AuditDao auditDao = new FileAuditDao();
+
         PaymentGateway gateway = new FakePaymentGateway();
 
         Map<PaymentMethod, PaymentProcessor> processors = new HashMap<>();
         processors.put(PaymentMethod.CARD, new CardPaymentProcessor(gateway));
 
 
-        PaymentService paymentService = new PaymentService(dao,processors);
+        PaymentService paymentService = new PaymentService(dao,auditDao,processors);
 
-        UserIO io = new UserIOConsoleImpl();
-        PaymentView view = new PaymentView(io);
+
 
         PaymentController controller = new PaymentController(view, paymentService);
 

@@ -2,6 +2,7 @@ package controller;
 
 import domain.model.Payment;
 import domain.model.PaymentMethod;
+import exception.PersistenceException;
 import service.PaymentService;
 import view.PaymentView;
 
@@ -16,14 +17,18 @@ public class PaymentController {
     }
 
 
-    public void run(){
-        for(int i = 0; i < 3; i++){
-            Payment payment = service.createPayment(100,PaymentMethod.CARD);
-            service.authorizePayment(payment);
-            //view.displayPayment(payment);
+    public void run() {
+        try{
+            for(int i = 0; i < 3; i++){
+                Payment payment = service.createPayment(100,PaymentMethod.CARD);
+                service.authorizePayment(payment);
+                view.displayPayment(payment);
+            }
+            view.displayAllPayments(service.getAllPayments());
+        } catch (PersistenceException e){
+            view.displayError(e.getMessage());
         }
-        view.displayAllPayments(service.getAllPayments());
-
 
     }
+
 }
