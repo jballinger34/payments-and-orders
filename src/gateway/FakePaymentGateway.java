@@ -19,10 +19,21 @@ public class FakePaymentGateway implements PaymentGateway {
             int randomReason = random.nextInt(AuthFailureReason.values().length);
             return new AuthResponse(false, AuthFailureReason.values()[randomReason]);
         }
+    }
 
-
+    @Override
+    public void capture(Payment payment) {
 
     }
 
 
+    @Override
+    public void onCleared() {
+
+    }
+
+    @Override
+    public void onSettled() {
+
+    }
 }

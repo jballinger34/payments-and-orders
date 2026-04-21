@@ -33,6 +33,12 @@ public class Payment {
         }
         this.status = PaymentStatus.AUTHORIZED;
     }
+    public void capture(){
+        if(status != PaymentStatus.AUTHORIZED){
+            throw new IllegalStateException("Can only capture an AUTHORISED payment");
+        }
+        this.status = PaymentStatus.CAPTURED;
+    }
     public void fail(AuthFailureReason reason){
         if(status == PaymentStatus.CAPTURED){
             throw new IllegalStateException("Cannot fail a CAPTURED payment");

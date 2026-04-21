@@ -2,6 +2,7 @@ package domain.processor;
 
 import domain.model.AuthResponse;
 import domain.model.Payment;
+import gateway.PSPClient;
 import gateway.PaymentGateway;
 
 public class CardPaymentProcessor implements PaymentProcessor {
@@ -28,6 +29,6 @@ public class CardPaymentProcessor implements PaymentProcessor {
 
     @Override
     public void capture(Payment payment) {
-
+        payment.capture();
     }
 }

@@ -35,14 +35,7 @@ public class PaymentService {
         return payment;
     }
     public void authorizePayment(Payment payment) throws PersistenceException {
-        if(payment == null){
-            throw new NoSuchElementException("Payment not found");
-        }
-
-        PaymentProcessor processor = processors.get(payment.getPaymentMethod());
-        if(processor == null){
-            throw new IllegalArgumentException("Processor not found");
-        }
+        PaymentProcessor processor = getValidProcessor(payment);
         auditDao.writeEntry("Attempting to AUTHORIZE payment: " + payment.getId());
         processor.authorize(payment);
         //save updated state
@@ -58,11 +51,41 @@ public class PaymentService {
         Payment payment = dao.findById(paymentId);
         authorizePayment(payment);
     }
+
+    public void capturePayment(Payment payment) throws PersistenceException {
+        PaymentProcessor processor = getValidProcessor(payment);
+        auditDao.writeEntry("Attempting to CAPTURE payment " + payment.getId());
+        processor.capture(payment);
+        dao.save(payment);
+        if(payment.getStatus() == PaymentStatus.CAPTURED){
+            auditDao.writeEntry("Payment"+ payment.getId() + " CAPTURED");
+        } else {
+            auditDao.writeEntry("Payment: "+ payment.getId()+" CAPTURE FAILED");
+        }
+    }
+
+    public void settlePayment(Payment payment){
+
+    }
+
+
     public List<Payment> getAllPayments() throws PersistenceException {
         return dao.findAll();
     }
 
 
+    private PaymentProcessor getValidProcessor(Payment payment) {
+        if (payment == null) {
+            throw new NoSuchElementException("Payment not found");
+        }
 
+        PaymentProcessor processor = processors.get(payment.getPaymentMethod());
+
+        if (processor == null) {
+            throw new IllegalArgumentException("Processor not found");
+        }
+
+        return processor;
+    }
 
 }
