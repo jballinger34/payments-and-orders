@@ -1,0 +1,21 @@
+package dao;
+
+import exception.PersistenceException;
+import exception.ProductNotFoundException;
+
+public class AlwaysInStockInventoryDao implements InventoryDao {
+
+    private final int MAX_ORDER_SIZE = 100;
+
+    // a dummy impl that always has 100 stock
+    @Override
+    public int getStock(String productId) throws PersistenceException, ProductNotFoundException {
+        return MAX_ORDER_SIZE;
+    }
+
+    @Override
+    public void removeStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
+        return;
+    }
+
+}

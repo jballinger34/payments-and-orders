@@ -17,22 +17,77 @@ public class PaymentController {
         this.service = paymentService;
     }
 
+    public void run(){
+        // Initial interface
+        // options to:
+        //  run customer interface
+        //  run merchant interface
+        // maybe even run issuer interface (allow issuer to see pending transactions and authorize them)
+        runMerchant();
+    }
 
-    public void run() {
-        try{
-            for(int i = 0; i < 3; i++){
-                Payment payment = service.createPayment(100,PaymentMethod.CARD);
-                service.authorizePayment(payment);
-                if(payment.getStatus() == PaymentStatus.AUTHORIZED){
-                    service.capturePayment(payment);
-                }
-                view.displayPayment(payment);
+    private void runMerchant() {
+        // merchant interface
+        // view inventory
+        // view sales
+        // view outstanding payments
+        // view failed payments
+        // handle refunds
+        // exit
+        boolean running = true;
+        while(running){
+            int choice = getMenuChoice();
+            switch(choice){
+                case 1:
+                    manageInventory();
+                    break;
+                case 2:
+                    viewSales();
+                    break;
+                case 3:
+                    viewOutstanding();
+                    break;
+                case 4:
+                    viewFailed();
+                    break;
+                case 5:
+                    manageRefunds();
+                    break;
+                case 6:
+                    running = false;
+                    break;
+                default:
+                    break;
+
             }
-            view.displayAllPayments(service.getAllPayments());
-        } catch (PersistenceException e){
-            view.displayError(e.getMessage());
         }
+    }
 
+    private void manageInventory() {
+        //need to implement another menu
+        // view inventory
+        // restock inventory
+        //
+
+    }
+    private void viewSales(){
+
+    }
+    private void viewOutstanding(){
+
+    }
+    private void viewFailed(){
+
+    }
+    private void manageRefunds(){
+        //allows the merchant to go through the payments tagged for refund,
+        // when they receive the return (or otherwise happy to issue refund)
+        // they can confirm refund, and it'll refund to customer
+    }
+
+
+    private int getMenuChoice(){
+        return view.displayMenuAndGetSelection();
     }
 
 }

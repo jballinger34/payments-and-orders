@@ -16,7 +16,6 @@ public class CardPaymentProcessor implements PaymentProcessor {
 
     @Override
     public void authorize(Payment payment) {
-
         AuthResponse authResponse = gateway.authorize(payment);
 
         if(authResponse.isSuccessful()){

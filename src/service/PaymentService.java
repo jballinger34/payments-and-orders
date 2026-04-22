@@ -17,34 +17,37 @@ import java.util.UUID;
 public class PaymentService {
 
     PaymentDao dao;
-    AuditDao auditDao;
+    AuditService auditService;
     Map<PaymentMethod,PaymentProcessor> processors;
 
-    public PaymentService(PaymentDao dao, AuditDao auditDao, Map<PaymentMethod, PaymentProcessor> processors){
+    public PaymentService(PaymentDao dao, AuditService auditService, Map<PaymentMethod, PaymentProcessor> processors){
         this.dao = dao;
-        this.auditDao = auditDao;
+        this.auditService = auditService;
         this.processors = processors;
     }
 
     public Payment createPayment(double amount, PaymentMethod method) throws PersistenceException{
         String id = UUID.randomUUID().toString();
         Payment payment = new Payment(id, amount, method);
-        auditDao.writeEntry("Attempting to CREATE payment: " + payment.getId());
+        auditService.logPaymentCreateAttempt(payment.getId());
+
         dao.save(payment);
-        auditDao.writeEntry("Payment:" + payment.getId() + " CREATED");
+        auditService.logPaymentCreateSuccess(payment.getId());
 
         return payment;
     }
     public void authorizePayment(Payment payment) throws PersistenceException {
         PaymentProcessor processor = getValidProcessor(payment);
-        auditDao.writeEntry("Attempting to AUTHORIZE payment: " + payment.getId());
+        auditService.logPaymentAuthAttempt(payment.getId());
+
         processor.authorize(payment);
         //save updated state
         dao.save(payment);
         if(payment.getStatus() == PaymentStatus.AUTHORIZED){
-            auditDao.writeEntry("Payment"+ payment.getId() + " AUTHORIZED");
+            auditService.logPaymentAuthSuccess(payment.getId());
+
         } else {
-            auditDao.writeEntry("Payment: "+ payment.getId()+" AUTHORIZE FAILED:"+ payment.getFailureReason());
+            auditService.logPaymentAuthFailure(payment.getId(), payment.getFailureReason());
         }
 
     }
@@ -55,18 +58,14 @@ public class PaymentService {
 
     public void capturePayment(Payment payment) throws PersistenceException {
         PaymentProcessor processor = getValidProcessor(payment);
-        auditDao.writeEntry("Attempting to CAPTURE payment " + payment.getId());
+        auditService.logPaymentCaptureAttempt(payment.getId());
         processor.capture(payment);
         dao.save(payment);
         if(payment.getStatus() == PaymentStatus.CAPTURED){
-            auditDao.writeEntry("Payment"+ payment.getId() + " CAPTURED");
+            auditService.logPaymentCaptureSuccess(payment.getId());
         } else {
-            auditDao.writeEntry("Payment: "+ payment.getId()+" CAPTURE FAILED");
+            auditService.logPaymentCaptureFailure(payment.getId());
         }
-    }
-
-    public void settlePayment(Payment payment){
-
     }
 
 

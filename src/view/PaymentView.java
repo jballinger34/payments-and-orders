@@ -39,4 +39,16 @@ public class PaymentView {
     public void setIo(UserIO io) {
         this.io = io;
     }
+
+    public int displayMenuAndGetSelection() {
+        io.print("=================");
+        io.print("Main Menu");
+        io.print("1. Manage Inventory");
+        io.print("2. View All Payments");
+        io.print("3. View Outstanding Payments");
+        io.print("4. View Failed Payments");
+        io.print("5. Handle Refunds");
+        io.print("6. Exit");
+        return io.readInt("Enter Menu Selection:",1,6);
+    }
 }
