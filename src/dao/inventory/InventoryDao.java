@@ -1,4 +1,4 @@
-package dao;
+package dao.inventory;
 
 import exception.PersistenceException;
 import exception.ProductNotFoundException;

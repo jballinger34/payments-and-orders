@@ -44,7 +44,7 @@ public class MerchantView {
         io.print("=================");
         io.print("Merchant Menu");
         io.print("1. Manage Inventory");
-        io.print("2. View All Payments");
+        io.print("2. View All Orders");
         io.print("3. View Outstanding Payments");
         io.print("4. View Failed Payments");
         io.print("5. Handle Refunds");

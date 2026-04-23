@@ -1,6 +1,6 @@
 package service;
 
-import dao.InventoryDao;
+import dao.inventory.InventoryDao;
 import exception.PersistenceException;
 import service.audit.AuditAction;
 import service.audit.AuditService;

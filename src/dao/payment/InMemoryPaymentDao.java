@@ -1,4 +1,4 @@
-package dao;
+package dao.payment;
 
 import domain.model.payment.Payment;
 

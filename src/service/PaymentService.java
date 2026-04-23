@@ -1,6 +1,6 @@
 package service;
 
-import dao.PaymentDao;
+import dao.payment.PaymentDao;
 import domain.model.payment.Payment;
 import domain.model.payment.PaymentMethod;
 import domain.model.payment.PaymentStatus;

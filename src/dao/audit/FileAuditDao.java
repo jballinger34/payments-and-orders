@@ -1,4 +1,4 @@
-package dao;
+package dao.audit;
 
 import exception.PersistenceException;
 

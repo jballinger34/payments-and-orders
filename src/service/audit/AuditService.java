@@ -1,8 +1,6 @@
 package service.audit;
 
-import dao.AuditDao;
-import domain.model.payment.AuthFailureReason;
-import domain.model.payment.PaymentStatus;
+import dao.audit.AuditDao;
 import exception.PersistenceException;
 
 public class AuditService {

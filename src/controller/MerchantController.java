@@ -29,7 +29,7 @@ public class MerchantController implements Controller {
                     manageInventory();
                     break;
                 case 2:
-                    viewSales();
+                    viewOrders();
                     break;
                 case 3:
                     viewOutstanding();
@@ -56,13 +56,13 @@ public class MerchantController implements Controller {
     }
 
     private void manageInventory() {
-        //need to implement another menu
+        //need to implement InventoryController
         // view inventory
         // restock inventory
         //
 
     }
-    private void viewSales(){
+    private void viewOrders(){
 
     }
     private void viewOutstanding(){
