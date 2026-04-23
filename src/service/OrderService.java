@@ -1,5 +1,7 @@
 package service;
 
+import dao.order.OrderDao;
+import dao.product.ProductDao;
 import domain.model.*;
 import domain.model.order.Order;
 import domain.model.order.OrderStatus;
@@ -12,22 +14,29 @@ import service.audit.AuditAction;
 import service.audit.AuditService;
 import service.audit.AuditType;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class OrderService {
 
+    OrderDao dao;
     PaymentService paymentService;
     InventoryService inventoryService;
     AuditService auditService;
 
-    public OrderService(PaymentService paymentService, InventoryService inventoryService, AuditService auditService){
+    public OrderService(OrderDao orderDao, PaymentService paymentService, InventoryService inventoryService, AuditService auditService){
+        this.dao = orderDao;
         this.paymentService = paymentService;
         this.inventoryService = inventoryService;
         this.auditService = auditService;
     }
 
+    public List<Order> getAllOrders() throws PersistenceException {
+        return dao.findAll();
+    }
+
     //payment method may be swapped for payment details later. i dont handle any details at the moment for simplicity
-    public Order placeOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException {
+    public Order createOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException {
         // check stock
         for(LineItem item : items){
             boolean isInStock = inventoryService.isInStock(item.getProductId(), item.getQuantity());
@@ -48,6 +57,7 @@ public class OrderService {
         Payment payment = paymentService.createPayment(order.getTotal(), paymentMethod);
         order.setPayment(payment);
 
+        dao.save(order);
         return order;
 
     }
@@ -57,13 +67,28 @@ public class OrderService {
         }
         Payment payment = order.getPayment();
         paymentService.authorizePayment(payment);
+
+        // note that we dao.save in both branches
+        // could extract to after the if-else statement
+        // but i want to save BEFORE logging
         if(payment.getStatus() == PaymentStatus.AUTHORIZED){
-            auditService.logSuccess(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId());
             order.markPaid();
+            dao.save(order);
+            auditService.logSuccess(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId());
         } else {
             order.cancel();
+            dao.save(order);
             auditService.logFailure(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId(), "PAYMENT_DECLINED");
         }
+
+    }
+
+    public Order createSampleOrder() throws PersistenceException {
+        // LOOK AT MerchantController addSampleData TO SEE HOW WE WILL REPLACE THIS TEMP METHOD
+
+        List<LineItem> items = inventoryService.getSampleItems();
+        return createOrder(items, PaymentMethod.CARD);
+
     }
     
 

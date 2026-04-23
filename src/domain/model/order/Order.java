@@ -3,6 +3,7 @@ package domain.model.order;
 import domain.model.LineItem;
 import domain.model.payment.Payment;
 
+import javax.sound.sampled.Line;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +22,17 @@ public class Order {
         this.items = items;
 
         this.status = OrderStatus.CREATED;
+    }
+    private Order(String id, List<LineItem> items){
+        this.id = id;
+        this.items = items;
+    };
+
+    public static Order fromPersistence(String id, List<LineItem> items, Payment payment, OrderStatus status) {
+        Order order = new Order(id, items);
+        order.payment = payment;
+        order.status = status;
+        return order;
     }
 
     public void setPayment(Payment payment) {
@@ -60,5 +72,8 @@ public class Order {
         return payment;
     }
 
+    public List<LineItem> getItems() {
+        return items;
+    }
 
 }

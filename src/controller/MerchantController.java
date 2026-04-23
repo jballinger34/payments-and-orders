@@ -1,19 +1,26 @@
 package controller;
 
+import domain.model.order.Order;
+import exception.PersistenceException;
 import service.OrderService;
 import view.MerchantView;
+
+import java.util.List;
 
 public class MerchantController implements Controller {
 
     private final MerchantView view;
-    private final OrderService service;
+    private final OrderService orderService;
 
     public MerchantController(MerchantView view, OrderService orderService) {
         this.view = view;
-        this.service = orderService;
+        this.orderService = orderService;
     }
 
     public void run() {
+        //uncomment to add sample data on run
+        //addSampleData();
+        
         // merchant interface
         // view inventory
         // view sales
@@ -62,7 +69,13 @@ public class MerchantController implements Controller {
         //
 
     }
-    private void viewOrders(){
+    private void viewOrders() {
+        try{
+            List<Order> orders = orderService.getAllOrders();
+            view.displayAllOrders(orders);
+        } catch (PersistenceException e){
+            view.displayError(e.getMessage());
+        }
 
     }
     private void viewOutstanding(){
@@ -82,4 +95,23 @@ public class MerchantController implements Controller {
         return view.displayMenuAndGetSelection();
     }
 
+    private void addSampleData(){
+        try {
+            //createSampleOrder, like this method is temporary to hard code some sample data to work with
+
+            //TODO
+            // customer controller gets view to take user IO
+            // then controller tells Inventory or Product service
+            // to build LineItems with the users input
+            // this interacts with the inventory and product daos
+            // to create List<LineItem> to THEN use orderService.createOrder
+            Order o1 = orderService.createSampleOrder();
+            orderService.processPayment(o1);
+            Order o2 = orderService.createSampleOrder();
+
+
+        } catch(PersistenceException e){
+            view.displayError(e.getMessage());
+        }
+    }
 }

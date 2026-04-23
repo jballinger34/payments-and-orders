@@ -13,4 +13,11 @@ public enum AuditAction {
 
     //inventory
     REDUCE_STOCK,
+    ;
+
+
+    @Override
+    public String toString() {
+        return super.toString() + ":";
+    }
 }

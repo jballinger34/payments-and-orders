@@ -11,6 +11,12 @@ public class InMemoryProductDao implements ProductDao {
 
     private final Map<String, Product> products = new HashMap<>();
 
+    public InMemoryProductDao(){
+        Product apple = new Product("0","Apple", 0.50);
+        Product orange = new Product("1","Orange", 0.75);
+        products.put(apple.getId(),apple);
+        products.put(orange.getId(), orange);
+    }
 
     @Override
     public void save(Product product) {

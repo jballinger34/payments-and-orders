@@ -1,8 +1,11 @@
 package view;
 
+import domain.model.LineItem;
+import domain.model.order.Order;
 import domain.model.payment.Payment;
 import domain.model.payment.PaymentStatus;
 
+import javax.sound.sampled.Line;
 import java.util.List;
 
 public class MerchantView {
@@ -28,6 +31,37 @@ public class MerchantView {
         io.print("=== Display All Payments ===");
         for(Payment payment : payments){
             displayPayment(payment);
+        }
+        io.print("========================");
+    }
+    public void displayOrder(Order order){
+        io.print("### Order ID: " + order.getId()+ " ###");
+        io.print("--- Total: " + order.getTotal() + " ---");
+        io.print("--- Status: " + order.getStatus() + " ---");
+        displayPayment(order.getPayment());
+        displayLineItems(order.getItems());
+        io.print("########################");
+
+    }
+    public void displayAllOrders(List<Order> orders){
+        io.print("=== Display All Orders ===");
+        for(Order order : orders){
+            displayOrder(order);
+        }
+        io.print("========================");
+    }
+    public void displayLineItem(LineItem item){
+        io.print("------------------------");
+        io.print("--- Product Id "+item.getProductId()+" ---");
+        io.print("--- Product Name " + item.getProductName() + " ---");
+        io.print("--- Quantity " + item.getQuantity() + " ---");
+        io.print("--- Price " + item.getPriceAtPurchase() + " ---");
+        io.print("------------------------");
+    }
+    public void displayLineItems(List<LineItem> items){
+        io.print("=== Line Items ===");
+        for(LineItem item : items){
+            displayLineItem(item);
         }
         io.print("========================");
     }
