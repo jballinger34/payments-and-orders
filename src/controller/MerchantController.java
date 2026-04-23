@@ -1,28 +1,19 @@
 package controller;
 
-import service.PaymentService;
-import view.PaymentView;
+import service.OrderService;
+import view.MerchantView;
 
-public class PaymentController {
+public class MerchantController implements Controller {
 
-    private final PaymentView view;
-    private final PaymentService service;
+    private final MerchantView view;
+    private final OrderService service;
 
-    public PaymentController(PaymentView view, PaymentService paymentService) {
+    public MerchantController(MerchantView view, OrderService orderService) {
         this.view = view;
-        this.service = paymentService;
+        this.service = orderService;
     }
 
-    public void run(){
-        // Initial interface
-        // options to:
-        //  run customer interface
-        //  run merchant interface
-        // maybe even run issuer interface (allow issuer to see pending transactions and authorize them)
-        runMerchant();
-    }
-
-    private void runMerchant() {
+    public void run() {
         // merchant interface
         // view inventory
         // view sales
@@ -57,6 +48,11 @@ public class PaymentController {
 
             }
         }
+    }
+
+    @Override
+    public String getName() {
+        return "Merchant Mode";
     }
 
     private void manageInventory() {

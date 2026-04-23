@@ -1,4 +1,7 @@
-import controller.PaymentController;
+import controller.Controller;
+import controller.CustomerController;
+import controller.MainController;
+import controller.MerchantController;
 import dao.*;
 import domain.model.payment.PaymentMethod;
 import domain.processor.CardPaymentProcessor;
@@ -10,18 +13,18 @@ import service.audit.AuditService;
 import service.InventoryService;
 import service.OrderService;
 import service.PaymentService;
-import view.PaymentView;
+import view.MainView;
+import view.MerchantView;
 import view.UserIO;
 import view.UserIOConsoleImpl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class App {
 
     public static void main(String[] args) {
         UserIO io = new UserIOConsoleImpl();
-        PaymentView view = new PaymentView(io);
+        MerchantView view = new MerchantView(io);
 
         PaymentDao paymentDao;
         try {
@@ -43,10 +46,15 @@ public class App {
         InventoryService inventoryService = new InventoryService(inventoryDao, auditService);
         PaymentService paymentService = new PaymentService(paymentDao,auditService,processors);
 
-
         OrderService orderService = new OrderService(paymentService,inventoryService,auditService);
-        // IN FUTURE SWAP OUT SO CONTROLLER TAKES ORDER SERVICE - THIS WILL BE OUR MAIN ORCHESTRATING SERVICE
-        PaymentController controller = new PaymentController(view, paymentService);
+
+
+        List<Controller> subControllers = Arrays.asList(new MerchantController(view, orderService), new CustomerController());
+
+
+        MainView mainView = new MainView(io);
+        MainController controller = new MainController(mainView, subControllers);
+
 
         controller.run();
 

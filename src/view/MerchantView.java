@@ -5,11 +5,11 @@ import domain.model.payment.PaymentStatus;
 
 import java.util.List;
 
-public class PaymentView {
+public class MerchantView {
 
     private UserIO io;
 
-    public PaymentView(UserIO io){
+    public MerchantView(UserIO io){
         this.io = io;
     }
 
@@ -42,7 +42,7 @@ public class PaymentView {
 
     public int displayMenuAndGetSelection() {
         io.print("=================");
-        io.print("Main Menu");
+        io.print("Merchant Menu");
         io.print("1. Manage Inventory");
         io.print("2. View All Payments");
         io.print("3. View Outstanding Payments");
