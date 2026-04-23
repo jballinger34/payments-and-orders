@@ -1,20 +1,28 @@
 package service;
 
 import domain.model.*;
+import domain.model.order.Order;
+import domain.model.order.OrderStatus;
+import domain.model.payment.Payment;
+import domain.model.payment.PaymentMethod;
+import domain.model.payment.PaymentStatus;
 import exception.InsufficientStockException;
 import exception.PersistenceException;
+import service.audit.AuditAction;
+import service.audit.AuditService;
+import service.audit.AuditType;
 
 import java.util.List;
 
 public class OrderService {
 
     PaymentService paymentService;
-    InventoryService inventorySerivce;
+    InventoryService inventoryService;
     AuditService auditService;
 
     public OrderService(PaymentService paymentService, InventoryService inventoryService, AuditService auditService){
         this.paymentService = paymentService;
-        this.inventorySerivce = inventoryService;
+        this.inventoryService = inventoryService;
         this.auditService = auditService;
     }
 
@@ -22,18 +30,18 @@ public class OrderService {
     public Order placeOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException {
         // check stock
         for(LineItem item : items){
-            boolean isInStock = inventorySerivce.isInStock(item.getProductId(), item.getQuantity());
+            boolean isInStock = inventoryService.isInStock(item.getProductId(), item.getQuantity());
             if(!isInStock){
                 throw new InsufficientStockException("Not enough stock for product " + item.getProductId());
             }
         }
         //create order
         Order order = new Order(items);
-        auditService.logOrderCreateAttempt(order.getId());
+        auditService.logAttempt(AuditType.ORDER, AuditAction.CREATE, order.getId());
 
         //reduce stock
         for(LineItem item : items){
-            inventorySerivce.reduceStock(item.getProductId(), item.getQuantity());
+            inventoryService.reduceStock(item.getProductId(), item.getQuantity());
         }
 
         // create payment
@@ -50,11 +58,11 @@ public class OrderService {
         Payment payment = order.getPayment();
         paymentService.authorizePayment(payment);
         if(payment.getStatus() == PaymentStatus.AUTHORIZED){
-            // audit log here -- change how audit works so not written
+            auditService.logSuccess(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId());
             order.markPaid();
         } else {
             order.cancel();
-            // audit log here -- change how audit works so not written
+            auditService.logFailure(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId(), "PAYMENT_DECLINED");
         }
     }
     

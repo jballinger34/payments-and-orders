@@ -1,6 +1,6 @@
 package dao;
 
-import domain.model.Payment;
+import domain.model.payment.Payment;
 
 import java.util.*;
 

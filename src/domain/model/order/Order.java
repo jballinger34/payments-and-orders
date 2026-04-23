@@ -1,4 +1,7 @@
-package domain.model;
+package domain.model.order;
+
+import domain.model.LineItem;
+import domain.model.payment.Payment;
 
 import java.util.List;
 import java.util.UUID;

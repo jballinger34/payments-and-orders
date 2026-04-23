@@ -1,7 +1,7 @@
 package gateway;
 
-import domain.model.AuthResponse;
-import domain.model.Payment;
+import domain.model.payment.AuthResponse;
+import domain.model.payment.Payment;
 
 /**
  * Sends requests to external payment service provider

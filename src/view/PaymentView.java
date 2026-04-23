@@ -1,7 +1,7 @@
 package view;
 
-import domain.model.Payment;
-import domain.model.PaymentStatus;
+import domain.model.payment.Payment;
+import domain.model.payment.PaymentStatus;
 
 import java.util.List;
 

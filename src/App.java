@@ -1,12 +1,12 @@
 import controller.PaymentController;
 import dao.*;
-import domain.model.PaymentMethod;
+import domain.model.payment.PaymentMethod;
 import domain.processor.CardPaymentProcessor;
 import domain.processor.PaymentProcessor;
 import exception.PersistenceException;
 import gateway.FakePaymentGateway;
 import gateway.PaymentGateway;
-import service.AuditService;
+import service.audit.AuditService;
 import service.InventoryService;
 import service.OrderService;
 import service.PaymentService;

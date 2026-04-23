@@ -1,9 +1,5 @@
 package controller;
 
-import domain.model.Payment;
-import domain.model.PaymentMethod;
-import domain.model.PaymentStatus;
-import exception.PersistenceException;
 import service.PaymentService;
 import view.PaymentView;
 

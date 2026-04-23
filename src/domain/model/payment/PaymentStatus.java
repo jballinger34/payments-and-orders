@@ -1,4 +1,4 @@
-package domain.model;
+package domain.model.payment;
 
 public enum PaymentStatus {
     PENDING,

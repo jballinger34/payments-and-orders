@@ -1,4 +1,4 @@
-package domain.model;
+package domain.model.payment;
 
 /**
  * representation of what the Payment Service Provider sends back to the merchant

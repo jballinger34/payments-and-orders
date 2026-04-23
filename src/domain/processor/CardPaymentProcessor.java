@@ -1,8 +1,7 @@
 package domain.processor;
 
-import domain.model.AuthResponse;
-import domain.model.Payment;
-import gateway.PSPClient;
+import domain.model.payment.AuthResponse;
+import domain.model.payment.Payment;
 import gateway.PaymentGateway;
 
 public class CardPaymentProcessor implements PaymentProcessor {

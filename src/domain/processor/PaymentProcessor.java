@@ -1,6 +1,6 @@
 package domain.processor;
 
-import domain.model.Payment;
+import domain.model.payment.Payment;
 
 /**
  * PaymentProcesser talks to external systems and tells Payment what happened

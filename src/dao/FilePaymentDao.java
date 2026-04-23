@@ -1,9 +1,9 @@
 package dao;
 
-import domain.model.AuthFailureReason;
-import domain.model.Payment;
-import domain.model.PaymentMethod;
-import domain.model.PaymentStatus;
+import domain.model.payment.AuthFailureReason;
+import domain.model.payment.Payment;
+import domain.model.payment.PaymentMethod;
+import domain.model.payment.PaymentStatus;
 import exception.InvalidDataException;
 import exception.PaymentNotFoundException;
 import exception.PersistenceException;

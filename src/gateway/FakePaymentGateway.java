@@ -1,8 +1,8 @@
 package gateway;
 
-import domain.model.AuthFailureReason;
-import domain.model.AuthResponse;
-import domain.model.Payment;
+import domain.model.payment.AuthFailureReason;
+import domain.model.payment.AuthResponse;
+import domain.model.payment.Payment;
 
 import java.util.Random;
 
