@@ -18,9 +18,6 @@ public class MerchantController implements Controller {
     }
 
     public void run() {
-        //uncomment to add sample data on run
-        //addSampleData();
-        
         // merchant interface
         // view inventory
         // view sales
@@ -67,7 +64,7 @@ public class MerchantController implements Controller {
         // view inventory
         // restock inventory
         //
-
+        view.displayError("Not implemented yet");
     }
     private void viewOrders() {
         try{
@@ -79,15 +76,16 @@ public class MerchantController implements Controller {
 
     }
     private void viewOutstanding(){
-
+        view.displayError("Not implemented yet");
     }
     private void viewFailed(){
-
+        view.displayError("Not implemented yet");
     }
     private void manageRefunds(){
         //allows the merchant to go through the payments tagged for refund,
         // when they receive the return (or otherwise happy to issue refund)
         // they can confirm refund, and it'll refund to customer
+        view.displayError("Not implemented yet");
     }
 
 

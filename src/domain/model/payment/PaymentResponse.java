@@ -1,10 +1,10 @@
 package domain.model.payment;
 
-public class AuthResponse {
+public class PaymentResponse {
     private final boolean success;
-    private final AuthFailureReason failureReason;
+    private final PaymentFailureReason failureReason;
 
-    public AuthResponse(boolean success, AuthFailureReason authFailureReason){
+    public PaymentResponse(boolean success, PaymentFailureReason authFailureReason){
         this.success = success;
         this.failureReason = authFailureReason;
     }
@@ -12,7 +12,7 @@ public class AuthResponse {
     public boolean isSuccessful(){
         return success;
     }
-    public AuthFailureReason getFailureReason() {
+    public PaymentFailureReason getFailureReason() {
         return failureReason;
     }
 }

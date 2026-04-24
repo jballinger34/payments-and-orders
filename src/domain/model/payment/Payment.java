@@ -7,7 +7,7 @@ public class Payment {
     private final PaymentMethod paymentMethod;
 
     private PaymentStatus status;
-    private AuthFailureReason failureReason;
+    private PaymentFailureReason failureReason;
 
     public Payment(String id, double amount, PaymentMethod method){
         this.id = id;
@@ -17,7 +17,7 @@ public class Payment {
         this.status = PaymentStatus.PENDING;
     }
     // deserialize
-    public static Payment fromPersistence(String id, double amount, PaymentMethod method, PaymentStatus status, AuthFailureReason reason){
+    public static Payment fromPersistence(String id, double amount, PaymentMethod method, PaymentStatus status, PaymentFailureReason reason){
         Payment payment = new Payment(id,amount,method);
         payment.status = status;
         payment.failureReason = reason;
@@ -38,7 +38,7 @@ public class Payment {
         }
         this.status = PaymentStatus.CAPTURED;
     }
-    public void fail(AuthFailureReason reason){
+    public void fail(PaymentFailureReason reason){
         if(status == PaymentStatus.CAPTURED){
             throw new IllegalStateException("Cannot fail a CAPTURED payment");
         }
@@ -62,7 +62,7 @@ public class Payment {
         return paymentMethod;
     }
 
-    public AuthFailureReason getFailureReason() {
+    public PaymentFailureReason getFailureReason() {
         return failureReason;
     }
 }

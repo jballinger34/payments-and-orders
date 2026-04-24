@@ -1,6 +1,6 @@
 package domain.processor;
 
-import domain.model.payment.AuthResponse;
+import domain.model.payment.PaymentResponse;
 import domain.model.payment.Payment;
 import gateway.PaymentGateway;
 
@@ -15,7 +15,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
 
     @Override
     public void authorize(Payment payment) {
-        AuthResponse authResponse = gateway.authorize(payment);
+        PaymentResponse authResponse = gateway.authorize(payment);
 
         if(authResponse.isSuccessful()){
             payment.authorize();
@@ -27,6 +27,11 @@ public class CardPaymentProcessor implements PaymentProcessor {
 
     @Override
     public void capture(Payment payment) {
-        payment.capture();
+        PaymentResponse captureResponse = gateway.capture(payment);
+        if(captureResponse.isSuccessful()){
+            payment.capture();
+        } else {
+            payment.fail(captureResponse.getFailureReason());
+        }
     }
 }

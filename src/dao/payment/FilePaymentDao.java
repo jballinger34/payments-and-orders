@@ -1,6 +1,6 @@
 package dao.payment;
 
-import domain.model.payment.AuthFailureReason;
+import domain.model.payment.PaymentFailureReason;
 import domain.model.payment.Payment;
 import domain.model.payment.PaymentMethod;
 import domain.model.payment.PaymentStatus;
@@ -67,7 +67,7 @@ public class FilePaymentDao implements PaymentDao {
                 PaymentMethod method = PaymentMethod.values()[Integer.parseInt(tokens[2])];
                 PaymentStatus status = PaymentStatus.values()[Integer.parseInt(tokens[3])];
                 int reason = Integer.parseInt(tokens[4]);
-                AuthFailureReason failureReason = reason == -1 ? null : AuthFailureReason.values()[reason];
+                PaymentFailureReason failureReason = reason == -1 ? null : PaymentFailureReason.values()[reason];
                 payments.put(id,Payment.fromPersistence(id,amount,method,status,failureReason));
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException e){
                 throw new InvalidDataException("Tried to load invalid payment. Possible data corruption.", e);

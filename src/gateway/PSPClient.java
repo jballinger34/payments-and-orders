@@ -1,6 +1,6 @@
 package gateway;
 
-import domain.model.payment.AuthResponse;
+import domain.model.payment.PaymentResponse;
 import domain.model.payment.Payment;
 
 /**
@@ -18,9 +18,9 @@ public interface PSPClient {
      * @param payment send payment id and info to PSP
      * @return AuthResponse, models the response from an external PSP
      */
-    AuthResponse authorize(Payment payment);
+    PaymentResponse authorize(Payment payment);
 
-    void capture(Payment payment);
+    PaymentResponse capture(Payment payment);
 
 
 }
