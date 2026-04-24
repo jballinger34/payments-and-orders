@@ -9,7 +9,6 @@ public class Payment {
     private PaymentStatus status;
     private AuthFailureReason failureReason;
 
-    //create a new payment
     public Payment(String id, double amount, PaymentMethod method){
         this.id = id;
         this.amount = amount;
@@ -17,8 +16,8 @@ public class Payment {
 
         this.status = PaymentStatus.PENDING;
     }
-    // deserialize a failed payment
-    public static Payment fromPersistance(String id, double amount, PaymentMethod method, PaymentStatus status, AuthFailureReason reason){
+    // deserialize
+    public static Payment fromPersistence(String id, double amount, PaymentMethod method, PaymentStatus status, AuthFailureReason reason){
         Payment payment = new Payment(id,amount,method);
         payment.status = status;
         payment.failureReason = reason;

@@ -68,7 +68,7 @@ public class FilePaymentDao implements PaymentDao {
                 PaymentStatus status = PaymentStatus.values()[Integer.parseInt(tokens[3])];
                 int reason = Integer.parseInt(tokens[4]);
                 AuthFailureReason failureReason = reason == -1 ? null : AuthFailureReason.values()[reason];
-                payments.put(id,Payment.fromPersistance(id,amount,method,status,failureReason));
+                payments.put(id,Payment.fromPersistence(id,amount,method,status,failureReason));
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException e){
                 throw new InvalidDataException("Tried to load invalid payment. Possible data corruption.", e);
             }
