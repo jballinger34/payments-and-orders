@@ -20,23 +20,27 @@ import domain.processor.PaymentProcessor;
 import exception.PersistenceException;
 import gateway.FakePaymentGateway;
 import gateway.PaymentGateway;
+import service.ProductService;
 import service.audit.AuditService;
 import service.InventoryService;
 import service.OrderService;
 import service.PaymentService;
-import view.MainView;
-import view.MerchantView;
-import view.UserIO;
-import view.UserIOConsoleImpl;
+import view.*;
 
 import java.util.*;
 
 public class App {
 
     public static void main(String[] args) {
+        //IO
         UserIO io = new UserIOConsoleImpl();
-        MerchantView view = new MerchantView(io);
 
+        //views
+        MainView mainView = new MainView(io);
+        MerchantView view = new MerchantView(io);
+        CustomerView customerView = new CustomerView(io);
+
+        //DAO
         ProductDao productDao = new InMemoryProductDao();
         PaymentDao paymentDao;
         OrderDao orderDao;
@@ -50,25 +54,27 @@ public class App {
         AuditDao auditDao = new FileAuditDao();
         InventoryDao inventoryDao = new AlwaysInStockInventoryDao();
 
-
+        // Payment specific - gateway + processors
         PaymentGateway gateway = new FakePaymentGateway();
 
         Map<PaymentMethod, PaymentProcessor> processors = new HashMap<>();
         processors.put(PaymentMethod.CARD, new CardPaymentProcessor(gateway));
 
-        AuditService auditService = new AuditService(auditDao);
+        //services
 
-        // NEED TO ADD SERVICE METHODS TO CREATE NEW PRODUCTS, AND SET AMOUNT OF STOCK
-        InventoryService inventoryService = new InventoryService(productDao,inventoryDao, auditService);
+        AuditService auditService = new AuditService(auditDao);
+        ProductService productService = new ProductService(productDao, auditService);
+        // InventoryService - NEED TO ADD SERVICE METHODS TO CREATE NEW PRODUCTS, AND SET AMOUNT OF STOCK
+        InventoryService inventoryService = new InventoryService(inventoryDao, auditService);
         PaymentService paymentService = new PaymentService(paymentDao,auditService,processors);
 
         OrderService orderService = new OrderService(orderDao,paymentService,inventoryService,auditService);
 
 
-        List<Controller> subControllers = Arrays.asList(new MerchantController(view, orderService), new CustomerController());
+        List<Controller> subControllers = Arrays.asList(new MerchantController(view, orderService), new CustomerController(productService,inventoryService,orderService,customerView));
 
 
-        MainView mainView = new MainView(io);
+
         MainController controller = new MainController(mainView, subControllers);
 
 
