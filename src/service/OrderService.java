@@ -1,7 +1,6 @@
 package service;
 
 import dao.order.OrderDao;
-import dao.product.ProductDao;
 import domain.model.*;
 import domain.model.order.Order;
 import domain.model.order.OrderStatus;
@@ -14,7 +13,6 @@ import service.audit.AuditAction;
 import service.audit.AuditService;
 import service.audit.AuditType;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class OrderService {
@@ -36,7 +34,7 @@ public class OrderService {
     }
 
     //payment method may be swapped for payment details later. i dont handle any details at the moment for simplicity
-    public Order createOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException {
+    public Order placeOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException {
         // check stock
         for(LineItem item : items){
             boolean isInStock = inventoryService.isInStock(item.getProductId(), item.getQuantity());
@@ -80,14 +78,6 @@ public class OrderService {
             dao.save(order);
             auditService.logFailure(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId(), "PAYMENT_DECLINED");
         }
-
-    }
-
-    public Order createSampleOrder() throws PersistenceException {
-        // LOOK AT MerchantController addSampleData TO SEE HOW WE WILL REPLACE THIS TEMP METHOD
-
-        List<LineItem> items = inventoryService.getSampleItems();
-        return createOrder(items, PaymentMethod.CARD);
 
     }
     

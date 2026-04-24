@@ -95,23 +95,4 @@ public class MerchantController implements Controller {
         return view.displayMenuAndGetSelection();
     }
 
-    private void addSampleData(){
-        try {
-            //createSampleOrder, like this method is temporary to hard code some sample data to work with
-
-            //TODO
-            // customer controller gets view to take user IO
-            // then controller tells Inventory or Product service
-            // to build LineItems with the users input
-            // this interacts with the inventory and product daos
-            // to create List<LineItem> to THEN use orderService.createOrder
-            Order o1 = orderService.createSampleOrder();
-            orderService.processPayment(o1);
-            Order o2 = orderService.createSampleOrder();
-
-
-        } catch(PersistenceException e){
-            view.displayError(e.getMessage());
-        }
-    }
 }
