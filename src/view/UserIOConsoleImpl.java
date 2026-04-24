@@ -31,7 +31,7 @@ public class UserIOConsoleImpl implements UserIO {
             if(result >= min && result <= max){
                 isValid = true;
             } else {
-                print("Double not in range");
+                print("Double not in range (" + min + "," + max + ")");
             }
         }
         return result;
@@ -58,7 +58,7 @@ public class UserIOConsoleImpl implements UserIO {
             if(result >= min && result <= max){
                 isValid = true;
             } else {
-                print("Float not in range");
+                print("Float not in range (" + min + "," + max + ")");
             }
         }
         return result;
@@ -85,7 +85,7 @@ public class UserIOConsoleImpl implements UserIO {
             if(result >= min && result <= max){
                 isValid = true;
             } else {
-                print("Int not in range");
+                print("Int not in range (" + min + "," + max + ")");
             }
         }
         return result;
@@ -112,7 +112,7 @@ public class UserIOConsoleImpl implements UserIO {
             if(result >= min && result <= max){
                 isValid = true;
             } else {
-                print("Long not in range");
+                print("Long not in range (" + min + "," + max + ")");
             }
         }
         return result;
