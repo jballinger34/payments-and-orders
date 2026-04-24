@@ -34,7 +34,7 @@ public class OrderService {
     }
 
     //payment method may be swapped for payment details later. i dont handle any details at the moment for simplicity
-    public Order placeOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException {
+    public Order placeOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException, InsufficientStockException {
         // check stock
         for(LineItem item : items){
             boolean isInStock = inventoryService.isInStock(item.getProductId(), item.getQuantity());
@@ -44,43 +44,103 @@ public class OrderService {
         }
         //create order
         Order order = new Order(items);
-        auditService.logAttempt(AuditType.ORDER, AuditAction.CREATE, order.getId());
+        try {
+            auditService.logAttempt(AuditType.ORDER, AuditAction.CREATE, order.getId());
 
-        //reduce stock
-        for(LineItem item : items){
-            inventoryService.reduceStock(item.getProductId(), item.getQuantity());
+            // create payment
+            Payment payment = paymentService.createPayment(order.getTotal(), paymentMethod);
+            order.setPayment(payment);
+            dao.save(order);
+            auditService.logSuccess(AuditType.ORDER, AuditAction.CREATE, order.getId());
+            return order;
+        } catch (PersistenceException | InsufficientStockException e) {
+            order.cancel();
+            dao.save(order);
+            auditService.logFailure(AuditType.ORDER, AuditAction.CREATE, order.getId(), e.getMessage());
+
+            //we throw e here (and in other methods to do with order flow)
+            //so that the controller can then use the view to display the error
+            throw e;
         }
 
-        // create payment
-        Payment payment = paymentService.createPayment(order.getTotal(), paymentMethod);
-        order.setPayment(payment);
 
-        dao.save(order);
-        return order;
 
     }
-    public void processPayment(Order order) throws PersistenceException {
+    public void authorizePayment(Order order) throws PersistenceException {
         if(order.getStatus() != OrderStatus.CREATED){
             throw new IllegalStateException("Order not in CREATED state");
         }
-        auditService.logAttempt(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId());
-        Payment payment = order.getPayment();
-        paymentService.authorizePayment(payment);
+        try {
+            auditService.logAttempt(AuditType.ORDER, AuditAction.AUTH, order.getId());
+            Payment payment = order.getPayment();
+            paymentService.authorizePayment(payment);
 
-        // note that we dao.save in both branches
-        // could extract to after the if-else statement
-        // but i want to save BEFORE logging
-        if(payment.getStatus() == PaymentStatus.AUTHORIZED){
-            order.markPaid();
-            dao.save(order);
-            auditService.logSuccess(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId());
-        } else {
+            if(payment.getStatus() == PaymentStatus.AUTHORIZED){
+                order.markReady();
+                dao.save(order);
+                auditService.logSuccess(AuditType.ORDER, AuditAction.AUTH, order.getId());
+            } else {
+                order.cancel();
+                dao.save(order);
+                auditService.logFailure(AuditType.ORDER, AuditAction.AUTH, order.getId(), "PAYMENT_DECLINED");
+            }
+        } catch (PersistenceException e){
             order.cancel();
             dao.save(order);
-            auditService.logFailure(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId(), "PAYMENT_DECLINED");
+            auditService.logFailure(AuditType.ORDER,AuditAction.AUTH, order.getId(), e.getMessage());
+            throw e;
         }
 
     }
-    
+    public void reserveStock(Order order) throws PersistenceException {
+        if(order.getStatus() != OrderStatus.READY){
+            throw new IllegalStateException("Order not in READY state");
+        }
 
+        try {
+
+            auditService.logAttempt(AuditType.ORDER, AuditAction.REDUCE_STOCK, order.getId());
+
+            List<LineItem> items = order.getItems();
+            for(LineItem item : items){
+                inventoryService.reduceStock(item.getProductId(), item.getQuantity());
+            }
+            order.markReserved();
+            auditService.logSuccess(AuditType.ORDER, AuditAction.REDUCE_STOCK, order.getId());
+
+        } catch (PersistenceException e){
+            order.cancel();
+            dao.save(order);
+            auditService.logFailure(AuditType.ORDER, AuditAction.REDUCE_STOCK, order.getId(), e.getMessage());
+            throw e;
+        }
+
+
+    }
+
+    public void capturePayment(Order order) throws PersistenceException {
+        if(order.getStatus() != OrderStatus.RESERVED){
+            throw new IllegalStateException("Order not in RESERVED state");
+        }
+        try{
+            auditService.logAttempt(AuditType.ORDER, AuditAction.CAPTURE, order.getId());
+            Payment payment = order.getPayment();
+            paymentService.capturePayment(payment);
+            if(payment.getStatus() == PaymentStatus.CAPTURED){
+                order.markPaid();
+                dao.save(order);
+                auditService.logSuccess(AuditType.ORDER, AuditAction.CAPTURE, order.getId());
+            } else {
+                order.cancel();
+                dao.save(order);
+                auditService.logFailure(AuditType.ORDER, AuditAction.CAPTURE, order.getId(), "NO_REASON_YET");
+            }
+
+        } catch (PersistenceException e){
+            order.cancel();
+            dao.save(order);
+            auditService.logFailure(AuditType.ORDER, AuditAction.CAPTURE, order.getId(), e.getMessage());
+            throw e;
+        }
+    }
 }

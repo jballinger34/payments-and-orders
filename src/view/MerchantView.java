@@ -79,8 +79,8 @@ public class MerchantView {
         io.print("Merchant Menu");
         io.print("1. Manage Inventory");
         io.print("2. View All Orders");
-        io.print("3. View Outstanding Payments");
-        io.print("4. View Failed Payments");
+        io.print("3. View Outstanding Orders");
+        io.print("4. View Failed Orders");
         io.print("5. Handle Refunds");
         io.print("6. Exit");
         return io.readInt("Enter Menu Selection:",1,6);

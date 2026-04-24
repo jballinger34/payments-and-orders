@@ -8,6 +8,13 @@ public enum OrderStatus {
     PROCESSING, // process of fulfilling the order - building, in shipping, etc.
     FULFILLED, // order fulfilled - customer has their order - but it is still refundable
 
+    //processing very similar to paid, therefore PAID -> PROCESSING won't happen automatically,
+    // it will wait for the merchant to manually mark as PROCESSING when they actually start processing it
+    // could also split this up further by adding SHIPPING for when the order has been released for shipping
+
+    // FULFILLED -> COMPLETED likely to just happen automatically after a certain amount of time
+    // if the customer does refund the item
+
     COMPLETED, // order fully completed - customer can no longer refund payment
 
     CANCELLED, // order canceled BEFORE PAID state - no stock, auth declined, etc.

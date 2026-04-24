@@ -45,9 +45,21 @@ public class Order {
         }
         return total;
     }
-    public void markPaid(){
+    public void markReady(){
         if(status != OrderStatus.CREATED){
-            throw new IllegalStateException("Only CREATED orders can be marked as paid ");
+            throw new IllegalStateException("Only CREATED orders can be marked as ready ");
+        }
+        status = OrderStatus.READY;
+    }
+    public void markReserved() {
+        if(status != OrderStatus.READY){
+            throw new IllegalStateException("Only READY orders can be marked as reserved ");
+        }
+        status = OrderStatus.RESERVED;
+    }
+    public void markPaid(){
+        if(status != OrderStatus.RESERVED){
+            throw new IllegalStateException("Only RESERVED orders can be marked as paid ");
         }
         status = OrderStatus.PAID;
     }
@@ -75,5 +87,6 @@ public class Order {
     public List<LineItem> getItems() {
         return items;
     }
+
 
 }

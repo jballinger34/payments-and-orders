@@ -101,6 +101,9 @@ public class CustomerController implements Controller {
     private void viewCart(){
         view.displayCart(cart);
     }
+    //TODO
+    // MAY NEED TO BREAK CHECKOUT UP INTO SMALLER METHODS
+    // GOOD FOR NOW THOUGH AS AN INITIAL IMPL
     private void checkout(){
         if(cart.isEmpty()){
             view.displayError("Cart is empty");
@@ -108,18 +111,40 @@ public class CustomerController implements Controller {
         }
         try{
             Order order = orderService.placeOrder(new ArrayList<>(cart), PaymentMethod.CARD);
-            view.confirm();
-            orderService.processPayment(order);
-            if(order.getStatus() == OrderStatus.PAID){
-                view.displayMessage("Order placed successfully!");
-                view.displayOrder(order);
-                cart.clear();
-            } else {
-                view.displayError("Payment failed. Order cancelled.");
-            }
+            view.displayMessage("Order created!");
 
-        } catch (InsufficientStockException | PersistenceException e){
+            // get auth, try move CREATED -> READY
+            orderService.authorizePayment(order);
+            if(order.getStatus() != OrderStatus.READY) {
+                view.displayError("Payment failed. Order cancelled.");
+                return;
+            }
+            view.displayMessage("Payment authorized!");
+
+            // reserve stock, READY -> RESERVED
+            orderService.reserveStock(order);
+            if(order.getStatus() != OrderStatus.RESERVED){
+                view.displayError("Reserving Stock failed. Order cancelled.");
+                return;
+            }
+            view.displayMessage("Stock reserved!");
+
+            // automatic capture at the moment
+            // capture payment, RESERVED -> PAID
+            orderService.capturePayment(order);
+            if(order.getStatus() != OrderStatus.PAID){
+                view.displayError("Failed to capture payment. Order cancelled.");
+                return;
+            }
+            view.displayMessage("Payment captured");
+
+
+            view.displayOrder(order);
+            cart.clear();
+
+        } catch (PersistenceException | InsufficientStockException e){
             view.displayError("Something went wrong: " + e.getMessage());
+            view.displayError("Order cancelled.");
         }
     }
 

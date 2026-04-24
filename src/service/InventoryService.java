@@ -30,7 +30,14 @@ public class InventoryService {
         // audit log may need to be refactored (again...) to take more detail
         // we'd like to see for example how much stock was reduced by
         auditService.logAttempt(AuditType.INVENTORY, AuditAction.REDUCE_STOCK, productId);
-        inventoryDao.removeStock(productId,quantity);
+
+        try{
+            inventoryDao.removeStock(productId,quantity);
+        } catch (PersistenceException e){
+            auditService.logFailure(AuditType.INVENTORY, AuditAction.REDUCE_STOCK, productId, e.getMessage());
+            throw e;
+        }
+
         auditService.logSuccess(AuditType.INVENTORY, AuditAction.REDUCE_STOCK, productId);
     }
 

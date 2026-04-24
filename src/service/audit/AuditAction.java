@@ -9,7 +9,6 @@ public enum AuditAction {
     CAPTURE,
 
     //order
-    PROCESS_PAYMENT,
 
     //inventory
     REDUCE_STOCK,
