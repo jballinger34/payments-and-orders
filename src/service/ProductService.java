@@ -9,11 +9,9 @@ import java.util.List;
 public class ProductService {
 
     ProductDao productDao;
-    AuditService audit;
 
-    public ProductService(ProductDao productDao, AuditService auditService){
+    public ProductService(ProductDao productDao){
         this.productDao = productDao;
-        this.audit = auditService;
     }
 
     public Product getProduct(String productId){

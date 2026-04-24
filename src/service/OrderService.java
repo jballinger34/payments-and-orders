@@ -63,6 +63,7 @@ public class OrderService {
         if(order.getStatus() != OrderStatus.CREATED){
             throw new IllegalStateException("Order not in CREATED state");
         }
+        auditService.logAttempt(AuditType.ORDER, AuditAction.PROCESS_PAYMENT, order.getId());
         Payment payment = order.getPayment();
         paymentService.authorizePayment(payment);
 

@@ -63,7 +63,7 @@ public class App {
         //services
 
         AuditService auditService = new AuditService(auditDao);
-        ProductService productService = new ProductService(productDao, auditService);
+        ProductService productService = new ProductService(productDao);
         // InventoryService - NEED TO ADD SERVICE METHODS TO CREATE NEW PRODUCTS, AND SET AMOUNT OF STOCK
         InventoryService inventoryService = new InventoryService(inventoryDao, auditService);
         PaymentService paymentService = new PaymentService(paymentDao,auditService,processors);
@@ -71,9 +71,10 @@ public class App {
         OrderService orderService = new OrderService(orderDao,paymentService,inventoryService,auditService);
 
 
-        List<Controller> subControllers = Arrays.asList(new MerchantController(view, orderService), new CustomerController(productService,inventoryService,orderService,customerView));
-
-
+        List<Controller> subControllers = Arrays.asList(
+                new MerchantController(view, orderService),
+                new CustomerController(productService,inventoryService,orderService,customerView)
+        );
 
         MainController controller = new MainController(mainView, subControllers);
 
