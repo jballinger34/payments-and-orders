@@ -2,6 +2,7 @@ package service;
 
 import dao.inventory.InventoryDao;
 
+import exception.InsufficientStockException;
 import exception.PersistenceException;
 import exception.ProductNotFoundException;
 import service.audit.AuditAction;
@@ -22,7 +23,7 @@ public class InventoryService {
     public int getStockQty(String productId) throws PersistenceException, ProductNotFoundException {
         return inventoryDao.getStock(productId);
     }
-    public boolean isInStock(String productId, int quantity) throws PersistenceException {
+    public boolean isInStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
         int amtInStock = inventoryDao.getStock(productId);
         return quantity <= amtInStock;
     }
@@ -32,8 +33,10 @@ public class InventoryService {
         auditService.logAttempt(AuditType.INVENTORY, AuditAction.REDUCE_STOCK, productId);
 
         try{
+            if(quantity <= 0) throw new IllegalArgumentException("Invalid argument, cannot reduce stock by non-positive number " + quantity );
+            if(!isInStock(productId,quantity)) throw new InsufficientStockException("Insufficient stock of productId: " + productId);
             inventoryDao.removeStock(productId,quantity);
-        } catch (PersistenceException e){
+        } catch (Exception e){
             auditService.logFailure(AuditType.INVENTORY, AuditAction.REDUCE_STOCK, productId, e.getMessage());
             throw e;
         }
