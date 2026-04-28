@@ -11,6 +11,10 @@ public class AuditService {
         this.auditDao = auditDao;
     }
 
+    //used for stubbed service
+    // could stub out the dao instead/as well
+    protected AuditService(){}
+
 
     public void logAttempt(AuditType type, AuditAction action, String id) throws PersistenceException{
         String attempt = "ATTEMPT:";
