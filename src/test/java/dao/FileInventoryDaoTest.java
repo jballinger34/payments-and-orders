@@ -47,9 +47,9 @@ class FileInventoryDaoTest {
         String productId = "TEST_PRODUCT_1";
         int quantity = 10;
         String testEntry = productId + "::" + quantity;
-        try (PrintWriter pr = new PrintWriter(new FileWriter(testFile))){
-            pr.println(testEntry);
-
+        try (PrintWriter out = new PrintWriter(new FileWriter(testFile))){
+            out.println(testEntry);
+            out.flush();
             //CONSTRUCTOR CALLS THE LOAD METHOD THAT WE ARE TESTING
             testDao = new FileInventoryDao(testFile);
             int quantityFound = testDao.getStock(productId);
