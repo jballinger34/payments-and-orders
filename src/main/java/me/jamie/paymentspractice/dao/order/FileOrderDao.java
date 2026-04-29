@@ -79,7 +79,7 @@ public class FileOrderDao implements OrderDao {
                 Order order = Order.fromPersistence(id,items,payment, OrderStatus.values()[statusOrdinal]);
                 orders.put(order.getId(), order);
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException e ){
-                throw new InvalidDataException("Tried to load invalid payment. Possible data corruption.", e);
+                throw new InvalidDataException("Tried to load invalid order. Possible data corruption.", e);
             }
         }
     }
