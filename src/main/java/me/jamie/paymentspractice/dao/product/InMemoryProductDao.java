@@ -19,8 +19,12 @@ public class InMemoryProductDao implements ProductDao {
     }
 
     @Override
-    public void save(Product product) {
+    public void put(Product product) {
         products.put(product.getId(), product);
+    }
+    @Override
+    public void remove(String productId){
+        products.remove(productId);
     }
 
     @Override
