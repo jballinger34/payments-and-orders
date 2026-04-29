@@ -7,6 +7,7 @@ import me.jamie.paymentspractice.controller.MerchantController;
 import me.jamie.paymentspractice.dao.audit.AuditDao;
 import me.jamie.paymentspractice.dao.audit.FileAuditDao;
 import me.jamie.paymentspractice.dao.inventory.AlwaysInStockInventoryDao;
+import me.jamie.paymentspractice.dao.inventory.FileInventoryDao;
 import me.jamie.paymentspractice.dao.inventory.InventoryDao;
 import me.jamie.paymentspractice.dao.order.FileOrderDao;
 import me.jamie.paymentspractice.dao.order.OrderDao;
@@ -27,9 +28,12 @@ import me.jamie.paymentspractice.service.ProductService;
 import me.jamie.paymentspractice.service.audit.AuditService;
 import me.jamie.paymentspractice.view.*;
 
+import java.io.File;
 import java.util.*;
 
 public class App {
+
+    static final String inventory_file = "inventory.txt";
 
     public static void main(String[] args) {
         //IO
@@ -44,15 +48,16 @@ public class App {
         ProductDao productDao = new InMemoryProductDao();
         PaymentDao paymentDao;
         OrderDao orderDao;
+        InventoryDao inventoryDao;
         try {
             paymentDao = new FilePaymentDao();
             orderDao = new FileOrderDao(paymentDao, productDao);
+            inventoryDao = new FileInventoryDao(inventory_file);
         } catch (PersistenceException e){
             view.displayError(e.getMessage());
             return;
         }
         AuditDao auditDao = new FileAuditDao();
-        InventoryDao inventoryDao = new AlwaysInStockInventoryDao();
 
         // Payment specific - gateway + processors
         PaymentGateway gateway = new FakePaymentGateway();
