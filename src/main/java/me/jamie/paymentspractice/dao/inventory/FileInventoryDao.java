@@ -4,23 +4,25 @@ import me.jamie.paymentspractice.exception.DuplicateProductException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
 
-public class AlwaysInStockInventoryDao implements InventoryDao {
+public class FileInventoryDao implements InventoryDao {
 
-    private final int MAX_ORDER_SIZE = 100;
+    String file;
 
-    // a dummy impl that always has 100 stock
+    public FileInventoryDao(String file){
+        this.file = file;
+    }
+
     @Override
     public int getStock(String productId) throws PersistenceException, ProductNotFoundException {
-        return MAX_ORDER_SIZE;
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
     @Override
     public void alterStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
-        return;
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
     @Override
-    public void addProduct(String productId) throws  DuplicateProductException {
-        return;
+    public void addProduct(String productId) throws PersistenceException, DuplicateProductException {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
-
 }
