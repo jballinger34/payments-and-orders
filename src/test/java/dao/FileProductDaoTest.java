@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class FileProductDaoTest {
 
     ProductDao testDao;
@@ -24,27 +26,27 @@ public class FileProductDaoTest {
 
     @Test
     void testLoadFromFile(){
-
+        fail("TEST NOT WRITTEN");
     }
     @Test
     void testSaveToFile(){
-
+        fail("TEST NOT WRITTEN");
     }
     @Test
     void testAddNewProduct(){
-
+        fail("TEST NOT WRITTEN");
     }
     @Test
     void testUpdateProduct(){
-
+        fail("TEST NOT WRITTEN");
     }
     @Test
     void testFindById(){
-
+        fail("TEST NOT WRITTEN");
     }
     @Test
     void testFindAll(){
-
+        fail("TEST NOT WRITTEN");
     }
 
 
