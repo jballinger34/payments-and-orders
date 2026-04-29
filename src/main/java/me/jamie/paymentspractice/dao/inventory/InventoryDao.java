@@ -6,5 +6,5 @@ import me.jamie.paymentspractice.exception.ProductNotFoundException;
 public interface InventoryDao {
 
     int getStock(String productId) throws PersistenceException, ProductNotFoundException;
-    void removeStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException;
+    void alterStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException;
 }

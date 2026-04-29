@@ -34,7 +34,9 @@ public class InventoryService {
         try{
             if(quantity <= 0) throw new IllegalArgumentException("Invalid argument, cannot reduce stock by non-positive number " + quantity );
             if(!isInStock(productId,quantity)) throw new InsufficientStockException("Insufficient stock of productId: " + productId);
-            inventoryDao.removeStock(productId,quantity);
+
+            int alterBy = -quantity;
+            inventoryDao.alterStock(productId, alterBy);
         } catch (Exception e){
             auditService.logFailure(AuditType.INVENTORY, AuditAction.REDUCE_STOCK, productId, e.getMessage());
             throw e;

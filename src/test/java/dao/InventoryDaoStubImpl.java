@@ -26,11 +26,11 @@ public class InventoryDaoStubImpl implements InventoryDao {
     }
 
     @Override
-    public void removeStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
+    public void alterStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
         if (!inventory.containsKey(productId)) {
             throw new ProductNotFoundException("Product not found");
         }
         int currentStock = inventory.get(productId);
-        inventory.put(productId, currentStock - quantity);
+        inventory.put(productId, currentStock + quantity);
     }
 }

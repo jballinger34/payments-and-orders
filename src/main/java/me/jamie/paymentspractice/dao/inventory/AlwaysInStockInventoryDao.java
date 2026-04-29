@@ -14,7 +14,7 @@ public class AlwaysInStockInventoryDao implements InventoryDao {
     }
 
     @Override
-    public void removeStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
+    public void alterStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
         return;
     }
 
