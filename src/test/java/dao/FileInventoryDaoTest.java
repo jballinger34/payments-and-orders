@@ -9,8 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +20,7 @@ class FileInventoryDaoTest {
     private final String testFile = "test_inventory.txt";
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() throws IOException, PersistenceException {
         //blank out file
         new FileWriter(testFile);
         testDao = new FileInventoryDao(testFile);
@@ -33,20 +32,23 @@ class FileInventoryDaoTest {
         testDao.addProduct(productId);
         testDao.alterStock(productId,10);
 
-        Scanner scanner = new Scanner(testFile);
-        String entry = scanner.nextLine();
+        try(Scanner scanner = new Scanner(new FileReader(testFile))){
+            String entry = scanner.nextLine();
 
-        String[] productIdAndQuantity = entry.split("::");
-        assertEquals(productId, productIdAndQuantity[0]);
-        assertEquals("10", productIdAndQuantity[1]);
+            String[] productIdAndQuantity = entry.split("::");
+            assertEquals(productId, productIdAndQuantity[0]);
+            assertEquals("10", productIdAndQuantity[1]);
+        } catch (IOException e){
+            fail("Test setup failed due to IOException: " + e.getMessage());
+        }
     }
     @Test
     void testLoadFile() throws PersistenceException {
         String productId = "TEST_PRODUCT_1";
         int quantity = 10;
         String testEntry = productId + "::" + quantity;
-        try (FileWriter fr = new FileWriter(testFile)){
-            fr.append(testEntry);
+        try (PrintWriter pr = new PrintWriter(new FileWriter(testFile))){
+            pr.println(testEntry);
 
             //CONSTRUCTOR CALLS THE LOAD METHOD THAT WE ARE TESTING
             testDao = new FileInventoryDao(testFile);
@@ -72,7 +74,7 @@ class FileInventoryDaoTest {
         String productId = "TEST_PRODUCT_1";
         testDao.addProduct(productId);
         testDao.alterStock(productId,10);
-        assertEquals(0, testDao.getStock(productId));
+        assertEquals(10, testDao.getStock(productId));
     }
     @Test
     void testAddDuplicateProduct() throws PersistenceException {
