@@ -1,10 +1,8 @@
 package service.order;
 
-
-import me.jamie.paymentspractice.dao.order.InMemoryOrderDao;
+import stubs.OrderDaoStubImpl;
 import me.jamie.paymentspractice.dao.order.OrderDao;
 import me.jamie.paymentspractice.domain.model.LineItem;
-import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.order.OrderStatus;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
@@ -18,9 +16,9 @@ import me.jamie.paymentspractice.service.audit.AuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import service.audit.AuditServiceStub;
-import service.inventory.InventoryServiceStub;
-import service.payments.PaymentServiceStub;
+import stubs.AuditServiceStub;
+import stubs.InventoryServiceStub;
+import stubs.PaymentServiceStub;
 
 import java.util.List;
 
@@ -30,18 +28,23 @@ class OrderServiceTest {
 
     OrderService orderService;
     InventoryService inventoryService;
-    private final List<LineItem> ITEM_10_IN_STOCK = List.of(new LineItem(new Product("ITEM_1", "ITEM_1", 1),1));
-    private final List<LineItem> ITEM_NONE_IN_STOCK = List.of(new LineItem(new Product("ITEM_2", "ITEM_2", 1), 1));
+    private static List<LineItem> ITEM_10_IN_STOCK;
+    private static List<LineItem> ITEM_NONE_IN_STOCK;
+
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws PersistenceException {
 
-        OrderDao orderDao = new InMemoryOrderDao();
+        OrderDao orderDao = new OrderDaoStubImpl();
+
         PaymentService paymentService = new PaymentServiceStub();
         inventoryService = new InventoryServiceStub();
-
         AuditService auditService = new AuditServiceStub();
+
         orderService = new OrderService(orderDao,paymentService,inventoryService,auditService);
+
+        ITEM_10_IN_STOCK = List.of(new LineItem(inventoryService.getProduct("PRODUCT_1"), 1,1));
+        ITEM_NONE_IN_STOCK = List.of(new LineItem(inventoryService.getProduct("PRODUCT_2"), 1, 1));
     }
 
     //getAllOrders()
@@ -51,6 +54,7 @@ class OrderServiceTest {
         assertNotNull(orders);
         assertEquals(0, orders.size());
     }
+
     @Test
     void getAllOrders_afterPlacingOrder() throws PersistenceException {
 
@@ -91,7 +95,7 @@ class OrderServiceTest {
     //reserveStock()
     @Test
     void reserveStock_success() throws Exception {
-        int stockAmt = inventoryService.getStockQty("ITEM_1");
+        int stockAmt = inventoryService.getStockQty("PRODUCT_1");
         Order order = orderService.placeOrder(ITEM_10_IN_STOCK, PaymentMethod.CARD);
 
         orderService.authorizePayment(order);
@@ -101,7 +105,7 @@ class OrderServiceTest {
         assertEquals(PaymentStatus.AUTHORIZED, order.getPayment().getStatus());
 
         //initial stock amount - amount in order should equal amount now in inventory
-        assertEquals(stockAmt - 1, inventoryService.getStockQty("ITEM_1"));
+        assertEquals(stockAmt - 1, inventoryService.getStockQty("PRODUCT_1"));
     }
 
     //capturePayment()
