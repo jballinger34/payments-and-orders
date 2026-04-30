@@ -150,7 +150,12 @@ public class CustomerController implements Controller {
 
 
     private Product getProduct(){
-        return view.displayProductsAndGetSelection(productService.getAllProducts());
+        try {
+            return view.displayProductsAndGetSelection(productService.getAllProducts());
+        } catch (PersistenceException e){
+            view.displayError("Something went wrong: " + e.getMessage());
+            return null;
+        }
     }
     private int getQuantity(int amtInStock){
         return view.getQuantity(amtInStock);
