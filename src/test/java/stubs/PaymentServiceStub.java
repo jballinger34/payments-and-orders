@@ -1,8 +1,10 @@
-package service.payments;
+package stubs;
 
 
 import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
+import me.jamie.paymentspractice.exception.PaymentNotFoundException;
+import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.PaymentService;
 
 public class PaymentServiceStub extends PaymentService {
@@ -13,7 +15,7 @@ public class PaymentServiceStub extends PaymentService {
 
     @Override
     public Payment createPayment(double amount, PaymentMethod method) {
-        return new Payment("PAYMENT_1", amount, method);
+        return new Payment("TEST_PAYMENT", amount, method);
     }
 
     @Override
@@ -24,5 +26,10 @@ public class PaymentServiceStub extends PaymentService {
     @Override
     public void capturePayment(Payment payment) {
         payment.capture();
+    }
+
+    @Override
+    public Payment getPayment(String paymentId) throws PersistenceException, PaymentNotFoundException {
+        return new Payment(paymentId, 10, PaymentMethod.CARD);
     }
 }
