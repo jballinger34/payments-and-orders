@@ -38,7 +38,7 @@ public class FileProductDaoTest {
             String[] tokens = entry.split("::");
             assertEquals(productId, tokens[0]);
             assertEquals(productId, tokens[1]);
-            assertEquals(1, Integer.parseInt(tokens[2]));
+            assertEquals(1.0, Double.parseDouble(tokens[2]));
         } catch (IOException | PersistenceException e){
             fail("Test setup failed due to exception: " + e.getMessage());
         }
@@ -87,7 +87,7 @@ public class FileProductDaoTest {
             Product product1 = new Product(productId, "Renamed product", 100);
             testDao.put(product1);
 
-            assertEquals(productId, testDao.findById(productId));
+            assertEquals(productId, testDao.findById(productId).getId());
             assertEquals(product1.getName(), testDao.findById(productId).getName());
             assertEquals(product1.getCost(), testDao.findById(productId).getCost());
         } catch (PersistenceException e){
