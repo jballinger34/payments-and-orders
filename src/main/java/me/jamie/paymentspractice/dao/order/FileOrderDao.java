@@ -1,12 +1,14 @@
 package me.jamie.paymentspractice.dao.order;
 
+import me.jamie.paymentspractice.dao.inventory.InventoryDao;
 import me.jamie.paymentspractice.dao.payment.PaymentDao;
-import me.jamie.paymentspractice.dao.product.ProductDao;
 import me.jamie.paymentspractice.domain.model.LineItem;
 import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.order.OrderStatus;
 import me.jamie.paymentspractice.domain.model.payment.Payment;
+import me.jamie.paymentspractice.dto.LineItemRecord;
+import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.InvalidDataException;
 import me.jamie.paymentspractice.exception.OrderNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
@@ -16,24 +18,19 @@ import java.util.*;
 
 public class FileOrderDao implements OrderDao {
 
-    private PaymentDao paymentDao;
-    private ProductDao productDao;
-
-    private Map<String, Order> orders = new HashMap<>();
+    private Map<String, OrderRecord> orders = new HashMap<>();
 
     private final String ORDER_FILE = "orders.txt";
     private final String ORDER_FIELD_DELIMETER = "::";
     private final String LIST_DELIMETER = ";;";
     private final String ITEM_FIELD_DELIMETER = ",,";
 
-    public FileOrderDao(PaymentDao paymentDao, ProductDao productDao) throws PersistenceException {
-        this.paymentDao = paymentDao;
-        this.productDao = productDao;
-
-        loadOrders();
-
+    public FileOrderDao() throws PersistenceException {
+        loadOrderRecords();
     }
-    private void loadOrders() throws PersistenceException {
+
+
+    private void loadOrderRecords() throws PersistenceException {
         Scanner scanner;
         File f = new File(ORDER_FILE);
         try{
@@ -44,6 +41,7 @@ public class FileOrderDao implements OrderDao {
         } catch (IOException e){
             throw new PersistenceException("Error loading orders file.", e);
         }
+
         while (scanner.hasNextLine()){
             String currentLine = scanner.nextLine();
             String[] tokens = currentLine.split(ORDER_FIELD_DELIMETER);
@@ -57,27 +55,25 @@ public class FileOrderDao implements OrderDao {
                 String id = tokens[0];
                 int statusOrdinal = Integer.parseInt(tokens[1]);
                 String paymentId = tokens[2];
-                Payment payment = paymentDao.findById(paymentId);
+
+                List<LineItemRecord> items = new ArrayList<>();
                 String itemsToken = tokens[3];
-                List<LineItem> items = new ArrayList<>();
 
                 if(!itemsToken.isEmpty()){
                     String[] itemParts = itemsToken.split(LIST_DELIMETER);
                     for(String part : itemParts){
                         String[] fields = part.split(ITEM_FIELD_DELIMETER);
+                        if(fields.length != 3){
+                            throw new InvalidDataException("Invalid line item");
+                        }
+                        items.add(new LineItemRecord(fields[0],
+                                Integer.parseInt(fields[1]),
+                                Double.parseDouble(fields[2])
+                        ));
 
-                        String productId = fields[0];
-                        Product product = productDao.findById(productId);
-
-                        int quantity = Integer.parseInt(fields[1]);
-                        double price = Double.parseDouble(fields[2]);
-
-                        LineItem item = new LineItem(product,quantity,price);
-                        items.add(item);
                     }
                 }
-                Order order = Order.fromPersistence(id,items,payment, OrderStatus.values()[statusOrdinal]);
-                orders.put(order.getId(), order);
+                orders.put(id, new OrderRecord(id,statusOrdinal,paymentId,items));
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException e ){
                 throw new InvalidDataException("Tried to load invalid order. Possible data corruption.", e);
             }
@@ -97,26 +93,26 @@ public class FileOrderDao implements OrderDao {
         } catch (IOException e){
             throw new PersistenceException("Could not save orders.", e );
         }
-        for(Order order : orders.values()){
+        for(OrderRecord order : orders.values()){
             out.println(getEntryString(order));
         }
         out.flush();
         out.close();
     }
-    private String getEntryString(Order order){
+    private String getEntryString(OrderRecord order){
         // entry format
         // Order: orderId::statusOrdinal::paymentId::items
         // Items: productIdStr,,quantity,,price;;productIdStr,,quantity,,price;;etc...
         StringBuilder sb = new StringBuilder()
-                .append(order.getId()).append(ORDER_FIELD_DELIMETER)
-                .append(order.getStatus().ordinal()).append(ORDER_FIELD_DELIMETER)
-                .append(order.getPayment().getId()).append(ORDER_FIELD_DELIMETER);
+                .append(order.id()).append(ORDER_FIELD_DELIMETER)
+                .append(order.statusOrdinal()).append(ORDER_FIELD_DELIMETER)
+                .append(order.paymentId()).append(ORDER_FIELD_DELIMETER);
 
         StringJoiner joiner = new StringJoiner(LIST_DELIMETER);
-        for(LineItem item : order.getItems()){
-            String entry = item.getProductId() + ITEM_FIELD_DELIMETER
-                          + item.getQuantity() + ITEM_FIELD_DELIMETER
-                          + item.getPriceAtPurchase();
+        for(LineItemRecord item : order.items()){
+            String entry = item.productId() + ITEM_FIELD_DELIMETER
+                          + item.quantity() + ITEM_FIELD_DELIMETER
+                          + item.price();
             joiner.add(entry);
         }
         sb.append(joiner.toString());
@@ -126,20 +122,20 @@ public class FileOrderDao implements OrderDao {
 
 
     @Override
-    public void save(Order order) throws PersistenceException {
-        orders.put(order.getId(),order);
+    public void save(OrderRecord order) throws PersistenceException {
+        orders.put(order.id(), order);
         writeAllOrders();
     }
 
     @Override
-    public Order findById(String orderId) {
-        Order order = orders.get(orderId);
+    public OrderRecord findById(String orderId) {
+        OrderRecord order = orders.get(orderId);
         if(order == null) throw new OrderNotFoundException("No order with ID: " + orderId);
         return order;
     }
 
     @Override
-    public List<Order> findAll() {
+    public List<OrderRecord> findAll() {
         return new ArrayList<>(orders.values());
     }
 }

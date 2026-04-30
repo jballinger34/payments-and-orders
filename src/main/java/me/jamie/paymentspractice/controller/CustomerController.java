@@ -10,7 +10,6 @@ import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
 import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.OrderService;
-import me.jamie.paymentspractice.service.ProductService;
 import me.jamie.paymentspractice.view.CustomerView;
 
 import java.util.ArrayList;
@@ -18,17 +17,15 @@ import java.util.List;
 
 public class CustomerController implements Controller {
 
-    ProductService productService;
     InventoryService inventoryService;
     OrderService orderService;
     CustomerView view;
 
     private final List<LineItem> cart = new ArrayList<>();
 
-    public CustomerController(ProductService productService, InventoryService inventoryService, OrderService orderService, CustomerView customerView){
+    public CustomerController(InventoryService inventoryService, OrderService orderService, CustomerView customerView){
         this.inventoryService = inventoryService;
         this.orderService = orderService;
-        this.productService = productService;
         this.view = customerView;
     }
 
@@ -151,7 +148,7 @@ public class CustomerController implements Controller {
 
     private Product getProduct(){
         try {
-            return view.displayProductsAndGetSelection(productService.getAllProducts());
+            return view.displayProductsAndGetSelection(inventoryService.getAllProducts());
         } catch (PersistenceException e){
             view.displayError("Something went wrong: " + e.getMessage());
             return null;

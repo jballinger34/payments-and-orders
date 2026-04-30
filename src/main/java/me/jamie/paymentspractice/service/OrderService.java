@@ -3,17 +3,21 @@ package me.jamie.paymentspractice.service;
 
 import me.jamie.paymentspractice.dao.order.OrderDao;
 import me.jamie.paymentspractice.domain.model.LineItem;
+import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.order.OrderStatus;
 import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.domain.model.payment.PaymentStatus;
+import me.jamie.paymentspractice.dto.LineItemRecord;
+import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.InsufficientStockException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.audit.AuditAction;
 import me.jamie.paymentspractice.service.audit.AuditService;
 import me.jamie.paymentspractice.service.audit.AuditType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderService {
@@ -31,8 +35,14 @@ public class OrderService {
     }
 
     public List<Order> getAllOrders() throws PersistenceException {
-        return dao.findAll();
+        List<OrderRecord> records = dao.findAll();
+        List<Order> orders = new ArrayList<>();
+        for(OrderRecord record : records){
+            orders.add(buildOrder(record));
+        }
+        return orders;
     }
+
 
     //payment method may be swapped for payment details later. i dont handle any details at the moment for simplicity
     public Order placeOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException, InsufficientStockException {
@@ -51,12 +61,12 @@ public class OrderService {
             // create payment
             Payment payment = paymentService.createPayment(order.getTotal(), paymentMethod);
             order.setPayment(payment);
-            dao.save(order);
+            dao.save(toRecord(order));
             auditService.logSuccess(AuditType.ORDER, AuditAction.CREATE, order.getId());
             return order;
         } catch (PersistenceException | InsufficientStockException e) {
             order.cancel();
-            dao.save(order);
+            dao.save(toRecord(order));
             auditService.logFailure(AuditType.ORDER, AuditAction.CREATE, order.getId(), e.getMessage());
 
             //we throw e here (and in other methods to do with order flow)
@@ -78,16 +88,16 @@ public class OrderService {
 
             if(payment.getStatus() == PaymentStatus.AUTHORIZED){
                 order.markReady();
-                dao.save(order);
+                dao.save(toRecord(order));
                 auditService.logSuccess(AuditType.ORDER, AuditAction.AUTH, order.getId());
             } else {
                 order.cancel();
-                dao.save(order);
+                dao.save(toRecord(order));
                 auditService.logFailure(AuditType.ORDER, AuditAction.AUTH, order.getId(), "PAYMENT_DECLINED");
             }
         } catch (PersistenceException e){
             order.cancel();
-            dao.save(order);
+            dao.save(toRecord(order));
             auditService.logFailure(AuditType.ORDER,AuditAction.AUTH, order.getId(), e.getMessage());
             throw e;
         }
@@ -107,11 +117,12 @@ public class OrderService {
                 inventoryService.reduceStock(item.getProductId(), item.getQuantity());
             }
             order.markReserved();
+            dao.save(toRecord(order));
             auditService.logSuccess(AuditType.ORDER, AuditAction.REDUCE_STOCK, order.getId());
 
         } catch (PersistenceException e){
             order.cancel();
-            dao.save(order);
+            dao.save(toRecord(order));
             auditService.logFailure(AuditType.ORDER, AuditAction.REDUCE_STOCK, order.getId(), e.getMessage());
             throw e;
         }
@@ -129,19 +140,46 @@ public class OrderService {
             paymentService.capturePayment(payment);
             if(payment.getStatus() == PaymentStatus.CAPTURED){
                 order.markPaid();
-                dao.save(order);
+                dao.save(toRecord(order));
                 auditService.logSuccess(AuditType.ORDER, AuditAction.CAPTURE, order.getId());
             } else {
                 order.cancel();
-                dao.save(order);
+                dao.save(toRecord(order));
                 auditService.logFailure(AuditType.ORDER, AuditAction.CAPTURE, order.getId(), "NO_REASON_YET");
             }
 
         } catch (PersistenceException e){
             order.cancel();
-            dao.save(order);
+            dao.save(toRecord(order));
             auditService.logFailure(AuditType.ORDER, AuditAction.CAPTURE, order.getId(), e.getMessage());
             throw e;
         }
     }
+
+    private Order buildOrder(OrderRecord record) throws PersistenceException {
+        Payment payment = paymentService.getPayment(record.paymentId());
+        List<LineItem> items = new ArrayList<>();
+        for(LineItemRecord itemRecord : record.items()){
+            Product product = inventoryService.getProduct(itemRecord.productId());
+            LineItem item = new LineItem(product,itemRecord.quantity(),itemRecord.price());
+            items.add(item);
+        }
+        OrderStatus status = OrderStatus.values()[record.statusOrdinal()];
+
+        return Order.fromPersistence(record.id(), items, payment, status);
+    }
+    private OrderRecord toRecord(Order order){
+        List<LineItemRecord> items = new ArrayList<>();
+
+        for (LineItem item : order.getItems()) {
+            items.add(new LineItemRecord(
+                    item.getProductId(),
+                    item.getQuantity(),
+                    item.getPriceAtPurchase()
+            ));
+        }
+
+        return new OrderRecord(order.getId(), order.getStatus().ordinal(), order.getPayment().getId(), items);
+    }
+
 }

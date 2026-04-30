@@ -19,9 +19,9 @@ import java.util.UUID;
 
 public class PaymentService {
 
-    PaymentDao dao;
-    AuditService auditService;
-    Map<PaymentMethod, PaymentProcessor> processors;
+    private PaymentDao dao;
+    private AuditService auditService;
+    private Map<PaymentMethod, PaymentProcessor> processors;
 
     public PaymentService(PaymentDao dao, AuditService auditService, Map<PaymentMethod, PaymentProcessor> processors){
         this.dao = dao;
@@ -74,6 +74,9 @@ public class PaymentService {
 
     public List<Payment> getAllPayments() throws PersistenceException {
         return dao.findAll();
+    }
+    public Payment getPayment(String paymentId) throws PersistenceException, PaymentNotFoundException{
+        return dao.findById(paymentId);
     }
 
 
