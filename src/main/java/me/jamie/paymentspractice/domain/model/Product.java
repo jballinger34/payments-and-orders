@@ -5,10 +5,13 @@ public class Product {
     private final String id;
     private String name;
     private double cost;
-    public Product(String id, String name, double cost){
+    private int stock;
+    
+    public Product(String id, String name, double cost, int stock){
         this.id = id;
         this.name = name;
         this.cost = cost;
+        this.stock = stock;
     }
 
     public String getId() {
@@ -21,5 +24,21 @@ public class Product {
 
     public String getName() {
         return name;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

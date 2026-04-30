@@ -2,13 +2,13 @@ package dao;
 
 import me.jamie.paymentspractice.dao.inventory.FileInventoryDao;
 import me.jamie.paymentspractice.dao.inventory.InventoryDao;
-import me.jamie.paymentspractice.exception.DuplicateProductException;
+import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.spec.DESedeKeySpec;
 import java.io.*;
 import java.util.Scanner;
 
@@ -29,15 +29,17 @@ class FileInventoryDaoTest {
     @Test
     void testSaveToFile() throws PersistenceException {
         String productId = "TEST_PRODUCT_1";
-        testDao.addProduct(productId);
-        testDao.alterStock(productId,10);
+        testDao.put(productId,new Product(productId,productId,1,10));
 
         try(Scanner scanner = new Scanner(new FileReader(testFile))){
             String entry = scanner.nextLine();
 
-            String[] productIdAndQuantity = entry.split("::");
-            assertEquals(productId, productIdAndQuantity[0]);
-            assertEquals("10", productIdAndQuantity[1]);
+            String[] tokens = entry.split("::");
+            assertEquals(productId, tokens[0]);
+            assertEquals(productId, tokens[1]);
+            assertEquals(1, Double.parseDouble(tokens[2]));
+            assertEquals(10, Integer.parseInt(tokens[3]));
+
         } catch (IOException e){
             fail("Test setup failed due to IOException: " + e.getMessage());
         }
@@ -45,14 +47,15 @@ class FileInventoryDaoTest {
     @Test
     void testLoadFile() throws PersistenceException {
         String productId = "TEST_PRODUCT_1";
+        double cost = 1;
         int quantity = 10;
-        String testEntry = productId + "::" + quantity;
+        String testEntry = productId + "::" + productId + "::" + cost + "::" + quantity;
         try (PrintWriter out = new PrintWriter(new FileWriter(testFile))){
             out.println(testEntry);
             out.flush();
             //CONSTRUCTOR CALLS THE LOAD METHOD THAT WE ARE TESTING
             testDao = new FileInventoryDao(testFile);
-            int quantityFound = testDao.getStock(productId);
+            int quantityFound = testDao.findById(productId).getStock();
             assertEquals(quantity, quantityFound);
 
         } catch (IOException e){
@@ -60,37 +63,21 @@ class FileInventoryDaoTest {
         }
     }
 
-
-    @Test
-    void testAddGetDefaultStock() throws PersistenceException {
-        String productId = "TEST_PRODUCT_1";
-        testDao.addProduct(productId);
-
-        // ensure any new products added have 0 stock by default
-        assertEquals(0, testDao.getStock(productId));
-    }
     @Test
     void testAddAlterGetStock() throws PersistenceException {
         String productId = "TEST_PRODUCT_1";
-        testDao.addProduct(productId);
-        testDao.alterStock(productId,10);
-        assertEquals(10, testDao.getStock(productId));
-    }
-    @Test
-    void testAddDuplicateProduct() throws PersistenceException {
-        String productId = "TEST_PRODUCT_1";
-        testDao.addProduct(productId);
-        assertThrows(DuplicateProductException.class, () -> testDao.addProduct(productId));
+        testDao.put(productId,new Product(productId,productId,1,10));
+        assertEquals(10, testDao.findById(productId).getStock());
     }
     @Test
     void testGetNotFoundProduct() {
         String productId = "TEST_PRODUCT_1";
-        assertThrows(ProductNotFoundException.class, () -> testDao.getStock(productId));
+        assertThrows(ProductNotFoundException.class, () -> testDao.findById(productId));
     }
     @Test
-    void testAlterNotFoundProduct() {
+    void testRemoveNotFoundProduct() {
         String productId = "TEST_PRODUCT_1";
-        assertThrows(ProductNotFoundException.class, () -> testDao.alterStock(productId, 10));
+        assertThrows(ProductNotFoundException.class, () -> testDao.remove(productId));
     }
 
 }

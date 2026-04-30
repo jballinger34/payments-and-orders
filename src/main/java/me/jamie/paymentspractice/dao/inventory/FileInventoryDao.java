@@ -1,14 +1,12 @@
 package me.jamie.paymentspractice.dao.inventory;
 
-import me.jamie.paymentspractice.exception.DuplicateProductException;
+import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.exception.InvalidDataException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class FileInventoryDao implements InventoryDao {
 
@@ -17,7 +15,7 @@ public class FileInventoryDao implements InventoryDao {
 
     private final String INVENTORY_FILE;
     private final String DELIMITER = "::";
-    private final Map<String, Integer> inventory = new HashMap<>();
+    private final Map<String, Product> inventory = new HashMap<>();
 
 
     public FileInventoryDao(String file) throws PersistenceException {
@@ -41,14 +39,19 @@ public class FileInventoryDao implements InventoryDao {
         }
 
         //saved in format
-        //productId::stockQty
+        //productId::name::cost::stockQty
         while(s.hasNextLine()) {
             try{
                 String entry = s.nextLine();
                 String[] fields = entry.split(DELIMITER);
+
                 String productId = fields[0];
-                Integer quantity = Integer.parseInt(fields[1]);
-                inventory.put(productId,quantity);
+                String name = fields[1];
+                double cost = Double.parseDouble(fields[2]);
+                int quantity = Integer.parseInt(fields[3]);
+
+                inventory.put(productId,new Product(productId,name, cost,quantity));
+
             } catch (ArrayIndexOutOfBoundsException | NumberFormatException e){
                 throw new InvalidDataException("Tried to load invalid inventory. Possible data corruption.", e);
             }
@@ -57,8 +60,8 @@ public class FileInventoryDao implements InventoryDao {
     private void writeAllStock() throws PersistenceException {
         try (PrintWriter out = new PrintWriter(new FileWriter(INVENTORY_FILE))){
 
-            for(String productId : inventory.keySet()){
-                out.println(productId + DELIMITER + inventory.get(productId));
+            for(Product product : inventory.values()){
+                out.println(product.getId()+ DELIMITER + product.getName() + DELIMITER + product.getCost()+ DELIMITER + product.getStock());
             }
             out.flush();
 
@@ -68,28 +71,27 @@ public class FileInventoryDao implements InventoryDao {
     }
 
     @Override
-    public int getStock(String productId) throws ProductNotFoundException {
+    public List<Product> findAll(){
+        return new ArrayList<>(inventory.values());
+    }
+    @Override
+    public Product findById(String productId) throws ProductNotFoundException {
         if(!inventory.containsKey(productId)){
             throw new ProductNotFoundException("Product " + productId + " not in inventory");
         }
         return inventory.get(productId);
     }
-
     @Override
-    public void alterStock(String productId, int quantity) throws PersistenceException, ProductNotFoundException {
-        if(!inventory.containsKey(productId)){
-            throw new ProductNotFoundException("Product " + productId + " not in inventory");
-        }
-        int current = inventory.get(productId);
-        inventory.put(productId, current + quantity);
+    public void put(String productId, Product product) throws PersistenceException {
+        inventory.put(productId, product);
         writeAllStock();
     }
     @Override
-    public void addProduct(String productId) throws PersistenceException, DuplicateProductException {
-        if(inventory.containsKey(productId)){
-            throw new DuplicateProductException("Product " + productId + " already exists.");
+    public void remove(String productId) throws PersistenceException {
+        if(!inventory.containsKey(productId)){
+            throw new ProductNotFoundException("Product " + productId + " not in inventory");
         }
-        inventory.put(productId,0);
+        inventory.remove(productId);
         writeAllStock();
     }
 }
