@@ -8,7 +8,7 @@ import me.jamie.paymentspractice.dao.audit.AuditDao;
 import me.jamie.paymentspractice.dao.audit.FileAuditDao;
 import me.jamie.paymentspractice.dao.inventory.FileInventoryDao;
 import me.jamie.paymentspractice.dao.inventory.InventoryDao;
-import me.jamie.paymentspractice.dao.order.FileOrderDao;
+import me.jamie.paymentspractice.dao.order.OracleDbOrderDao;
 import me.jamie.paymentspractice.dao.order.OrderDao;
 import me.jamie.paymentspractice.dao.payment.FilePaymentDao;
 import me.jamie.paymentspractice.dao.payment.PaymentDao;
@@ -24,7 +24,6 @@ import me.jamie.paymentspractice.service.PaymentService;
 import me.jamie.paymentspractice.service.audit.AuditService;
 import me.jamie.paymentspractice.view.*;
 
-import java.io.File;
 import java.util.*;
 
 public class App {
@@ -47,7 +46,11 @@ public class App {
         try {
             paymentDao = new FilePaymentDao();
             inventoryDao = new FileInventoryDao(inventory_file);
-            orderDao = new FileOrderDao();
+            orderDao = new OracleDbOrderDao(
+                    System.getenv("DB_URL"),
+                    System.getenv("DB_USER"),
+                    System.getenv("DB_PASSWORD")
+            );
 
         } catch (PersistenceException e){
             view.displayError(e.getMessage());
