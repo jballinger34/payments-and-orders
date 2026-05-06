@@ -6,7 +6,11 @@ import me.jamie.paymentspractice.dto.LineItemRecord;
 import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,17 +20,19 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OracleDbOrderDaoTest {
 
+    @Autowired
     private OrderDao dao;
-
-    private static final String URL = System.getenv("DB_URL");
-    private static final String USER = System.getenv("DB_TEST_USER");
-    private static final String PASS = System.getenv("DB_TEST_PASSWORD");
+    @Autowired
+    private DataSource dataSource;
 
     @BeforeAll
-    static void createTables() throws Exception {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+    void createTables() throws Exception {
+        try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()
         ) {
             stmt.execute("""
@@ -49,8 +55,10 @@ class OracleDbOrderDaoTest {
             // ignore "table already exists" errors for simplicity
         }
     }
-    private void cleanTables() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+
+    @BeforeEach
+    public void cleanTables() {
+        try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
 
             stmt.execute("DELETE FROM order_items");
@@ -61,14 +69,9 @@ class OracleDbOrderDaoTest {
         }
     }
 
-    @BeforeEach
-    void setUp() throws Exception {
-        dao = new OracleDbOrderDao(URL, USER, PASS);
-        cleanTables();
-    }
     @AfterAll
-    static void tearDownSchema() throws Exception {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+    void tearDownSchema() throws Exception {
+        try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
 
             stmt.execute("DROP TABLE order_items");

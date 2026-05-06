@@ -6,28 +6,29 @@ import me.jamie.paymentspractice.dto.LineItemRecord;
 import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.OrderNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-
+@Repository
+@Primary
 public class OracleDbOrderDao implements OrderDao {
 
-    private final String url;
-    private final String user;
-    private final String password;
+    private final DataSource dataSource;
+
+    public OracleDbOrderDao(DataSource dataSource){
+        this.dataSource = dataSource;
+    }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url,user,password);
+        return dataSource.getConnection();
     }
 
-    public OracleDbOrderDao(String url, String user, String password){
-        this.url = url;
-        this.user = user;
-        this.password = password;
-    }
 
     @Override
     public void save(OrderRecord order) throws PersistenceException {
