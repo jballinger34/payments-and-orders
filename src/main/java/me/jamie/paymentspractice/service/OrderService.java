@@ -16,10 +16,12 @@ import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.audit.AuditAction;
 import me.jamie.paymentspractice.service.audit.AuditService;
 import me.jamie.paymentspractice.service.audit.AuditType;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class OrderService {
 
     OrderDao dao;
