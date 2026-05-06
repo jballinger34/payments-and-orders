@@ -8,7 +8,7 @@ import me.jamie.paymentspractice.service.audit.AuditType;
 public class AuditServiceStub extends AuditService {
 
     public AuditServiceStub() {
-        super();
+        super(null);
     }
 
     @Override
