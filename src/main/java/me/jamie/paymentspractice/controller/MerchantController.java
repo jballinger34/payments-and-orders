@@ -10,6 +10,8 @@ import java.util.List;
 
 public class MerchantController implements Controller {
 
+    // TODO transform into REST CONTROLLER
+
     private final MerchantView view;
     private final OrderService orderService;
 

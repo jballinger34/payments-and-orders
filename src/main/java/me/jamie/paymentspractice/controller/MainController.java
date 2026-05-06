@@ -6,6 +6,10 @@ import java.util.List;
 
 public class MainController implements Controller {
 
+    // TODO transform into REST CONTROLLER
+
+
+
     // Not a View interface at the moment, i will see if i need that later
     MainView view;
     List<Controller> subControllers;
