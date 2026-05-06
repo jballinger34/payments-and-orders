@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface OrderDao {
     void save(OrderRecord order) throws PersistenceException;
-    OrderRecord findById(String orderId);
-    List<OrderRecord> findAll();
+    OrderRecord findById(String orderId) throws PersistenceException;
+    List<OrderRecord> findAll() throws PersistenceException;
 }
