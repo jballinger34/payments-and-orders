@@ -3,9 +3,11 @@ package me.jamie.paymentspractice.gateway;
 import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.domain.model.payment.PaymentFailureReason;
 import me.jamie.paymentspractice.domain.model.payment.PaymentResponse;
+import org.springframework.stereotype.Component;
 
 import java.util.Random;
 
+@Component
 public class FakePaymentGateway implements PaymentGateway {
 
     private final Random random = new Random();

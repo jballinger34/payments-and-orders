@@ -11,22 +11,26 @@ import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.audit.AuditAction;
 import me.jamie.paymentspractice.service.audit.AuditService;
 import me.jamie.paymentspractice.service.audit.AuditType;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+@Service
 public class PaymentService {
 
-    private PaymentDao dao;
-    private AuditService auditService;
-    private Map<PaymentMethod, PaymentProcessor> processors;
+    private final PaymentDao dao;
+    private final AuditService auditService;
+    private final Map<PaymentMethod, PaymentProcessor> processors;
 
-    public PaymentService(PaymentDao dao, AuditService auditService, Map<PaymentMethod, PaymentProcessor> processors){
+    public PaymentService(PaymentDao dao, AuditService auditService, List<PaymentProcessor> processorList){
         this.dao = dao;
         this.auditService = auditService;
-        this.processors = processors;
+        this.processors = processorList.stream().collect(Collectors.toMap(PaymentProcessor::supports, p -> p));
     }
 
     public Payment createPayment(double amount, PaymentMethod method) throws PersistenceException{
