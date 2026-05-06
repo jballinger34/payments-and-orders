@@ -8,13 +8,14 @@ import me.jamie.paymentspractice.exception.ProductNotFoundException;
 import me.jamie.paymentspractice.service.audit.AuditAction;
 import me.jamie.paymentspractice.service.audit.AuditService;
 import me.jamie.paymentspractice.service.audit.AuditType;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
+@Service
 public class InventoryService {
 
-    private InventoryDao inventoryDao;
+    private final InventoryDao inventoryDao;
     private final AuditService auditService;
 
     public InventoryService(InventoryDao inventoryDao, AuditService auditService){

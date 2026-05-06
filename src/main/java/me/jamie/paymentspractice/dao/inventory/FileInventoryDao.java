@@ -1,25 +1,31 @@
 package me.jamie.paymentspractice.dao.inventory;
 
+import jakarta.annotation.PostConstruct;
 import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.exception.InvalidDataException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.*;
 
+@Repository
 public class FileInventoryDao implements InventoryDao {
 
-    //EVERY TIME STOCK IS ALTERED, NEW ADDED, ETC - ALL IS REWRITTEN TO FILE
-    //BAD PERFORMANCE
 
     private final String INVENTORY_FILE;
     private final String DELIMITER = "::";
     private final Map<String, Product> inventory = new HashMap<>();
 
 
-    public FileInventoryDao(String file) throws PersistenceException {
+    public FileInventoryDao(@Value("${dao.inventory.file}") String file) {
         this.INVENTORY_FILE = file;
+    }
+
+    @PostConstruct
+    public void init() throws PersistenceException {
         loadStock();
     }
 
