@@ -1,9 +1,11 @@
 package me.jamie.paymentspractice.dao.payment;
 
 import me.jamie.paymentspractice.domain.model.payment.Payment;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Repository
 public class InMemoryPaymentDao implements PaymentDao {
 
     private final Map<String, Payment> payments = new HashMap<>();

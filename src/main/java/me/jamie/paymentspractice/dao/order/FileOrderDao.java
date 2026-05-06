@@ -1,5 +1,6 @@
 package me.jamie.paymentspractice.dao.order;
 
+import jakarta.annotation.PostConstruct;
 import me.jamie.paymentspractice.dao.inventory.InventoryDao;
 import me.jamie.paymentspractice.dao.payment.PaymentDao;
 import me.jamie.paymentspractice.domain.model.LineItem;
@@ -12,10 +13,12 @@ import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.InvalidDataException;
 import me.jamie.paymentspractice.exception.OrderNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.*;
 
+@Repository
 public class FileOrderDao implements OrderDao {
 
     private Map<String, OrderRecord> orders = new HashMap<>();
@@ -25,7 +28,8 @@ public class FileOrderDao implements OrderDao {
     private final String LIST_DELIMETER = ";;";
     private final String ITEM_FIELD_DELIMETER = ",,";
 
-    public FileOrderDao() throws PersistenceException {
+    @PostConstruct
+    public void init() throws PersistenceException{
         loadOrderRecords();
     }
 

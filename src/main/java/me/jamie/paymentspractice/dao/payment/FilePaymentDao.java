@@ -1,5 +1,6 @@
 package me.jamie.paymentspractice.dao.payment;
 
+import jakarta.annotation.PostConstruct;
 import me.jamie.paymentspractice.domain.model.payment.PaymentFailureReason;
 import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
@@ -7,10 +8,15 @@ import me.jamie.paymentspractice.domain.model.payment.PaymentStatus;
 import me.jamie.paymentspractice.exception.InvalidDataException;
 import me.jamie.paymentspractice.exception.PaymentNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.*;
 
+@Repository
+@Primary
 public class FilePaymentDao implements PaymentDao {
 
     // currently when we load from file we load the same payment multiple times
@@ -18,12 +24,17 @@ public class FilePaymentDao implements PaymentDao {
     private Map<String, Payment> payments = new HashMap<>();
 
     private static final String DELIMITER = "::";
-    private static final String PAYMENTS_FILE = "payments.txt";
+    private final String paymentsFile;
 
-    public FilePaymentDao() throws PersistenceException {
-        loadPayments();
+    public FilePaymentDao(@Value("${dao.payments.file}") String paymentsFile){
+        this.paymentsFile = paymentsFile;
     }
 
+
+    @PostConstruct
+    public void init() throws PersistenceException {
+        loadPayments();
+    }
 
     @Override
     public void save(Payment payment) throws PersistenceException {
@@ -45,12 +56,12 @@ public class FilePaymentDao implements PaymentDao {
 
     private void loadPayments() throws PersistenceException, InvalidDataException {
         Scanner scanner;
-        File f = new File(PAYMENTS_FILE);
+        File f = new File(paymentsFile);
         try {
             if(!f.exists()){
                 f.createNewFile();
             }
-            scanner = new Scanner(new FileReader(PAYMENTS_FILE));
+            scanner = new Scanner(new FileReader(paymentsFile));
         } catch (IOException e){
             throw new PersistenceException("Error loading payments file.",e);
         }
@@ -78,7 +89,7 @@ public class FilePaymentDao implements PaymentDao {
     private void writePayment(Payment payment) throws PersistenceException {
         PrintWriter out;
         try {
-            out = new PrintWriter(new FileWriter(PAYMENTS_FILE, true));
+            out = new PrintWriter(new FileWriter(paymentsFile, true));
         } catch (IOException e){
             throw new PersistenceException("Could not save payment",e);
         }
