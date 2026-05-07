@@ -9,6 +9,7 @@ import me.jamie.paymentspractice.domain.model.order.OrderStatus;
 import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.domain.model.payment.PaymentStatus;
+import me.jamie.paymentspractice.dto.CheckoutItemRequest;
 import me.jamie.paymentspractice.dto.LineItemRecord;
 import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.InsufficientStockException;
@@ -46,8 +47,14 @@ public class OrderService {
     }
 
 
-    //payment method may be swapped for payment details later. i dont handle any details at the moment for simplicity
-    public Order placeOrder(List<LineItem> items, PaymentMethod paymentMethod) throws PersistenceException, InsufficientStockException {
+    public Order placeOrder(List<CheckoutItemRequest> cart, PaymentMethod paymentMethod) throws PersistenceException, InsufficientStockException {
+        List<LineItem> items = new ArrayList<>();
+        for(CheckoutItemRequest item : cart){
+            Product p = inventoryService.getProduct(item.productId());
+            items.add(new LineItem(p,item.quantity()));
+        }
+
+
         // check stock
         for(LineItem item : items){
             boolean isInStock = inventoryService.isInStock(item.getProductId(), item.getQuantity());
@@ -75,9 +82,6 @@ public class OrderService {
             //so that the controller can then use the view to display the error
             throw e;
         }
-
-
-
     }
     public void authorizePayment(Order order) throws PersistenceException {
         if(order.getStatus() != OrderStatus.CREATED){

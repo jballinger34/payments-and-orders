@@ -1,6 +1,12 @@
 package me.jamie.paymentspractice.dto;
 
-public record LineItemDto(String productId, String name, int quantity, double unitPrice, double totalPrice) {
+import me.jamie.paymentspractice.domain.model.LineItem;
+
+public record LineItemDto(String productId, String name, int quantity, double totalPrice) {
+    public static LineItemDto from(LineItem item){
+        return new LineItemDto(item.getProductId(), item.getProductName(), item.getQuantity(), item.getPriceAtPurchase());
+    }
+
 }
 
 

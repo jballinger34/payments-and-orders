@@ -1,21 +1,16 @@
 package me.jamie.paymentspractice.controller;
 
-import me.jamie.paymentspractice.domain.model.LineItem;
 import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.domain.model.order.Order;
-import me.jamie.paymentspractice.domain.model.order.OrderStatus;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.dto.CheckoutItemRequest;
-import me.jamie.paymentspractice.dto.LineItemDto;
-import me.jamie.paymentspractice.exception.InsufficientStockException;
+import me.jamie.paymentspractice.dto.OrderDto;
+import me.jamie.paymentspractice.dto.ProductDto;
 import me.jamie.paymentspractice.exception.PersistenceException;
-import me.jamie.paymentspractice.exception.ProductNotFoundException;
 import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.OrderService;
-import me.jamie.paymentspractice.view.CustomerView;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,18 +26,11 @@ public class CustomerController {
     }
 
     @GetMapping("/products")
-    public List<Product> browse() throws PersistenceException {
-        return inventoryService.getAllProducts();
-    }
-
-    @PostMapping("/line-items")
-    public LineItemDto addToCart(@RequestParam String productId,
-                              @RequestParam int quantity)
-            throws PersistenceException, ProductNotFoundException {
-
-        Product product = inventoryService.getProduct(productId);
-
-        return new LineItemDto(productId, product.getName(), quantity, product.getCost(), product.getCost()*quantity);
+    public List<ProductDto> browse() throws PersistenceException {
+        return inventoryService.getAllProducts()
+                .stream()
+                .map(ProductDto::from)
+                .toList();
     }
 
     // TODO IMPORTANT!!!
@@ -55,7 +43,7 @@ public class CustomerController {
     // whether there is enough stock?
     // taking discount code? apply it in place order?
     @PostMapping("/checkout")
-    public Order checkout(@RequestBody List<CheckoutItemRequest> cart)
+    public OrderDto checkout(@RequestBody List<CheckoutItemRequest> cart)
             throws PersistenceException {
 
         Order order = orderService.placeOrder(cart, PaymentMethod.CARD);
@@ -64,6 +52,6 @@ public class CustomerController {
         orderService.reserveStock(order);
         orderService.capturePayment(order);
 
-        return order;
+        return OrderDto.from(order);
     }
 }
