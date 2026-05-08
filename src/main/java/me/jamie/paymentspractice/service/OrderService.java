@@ -11,12 +11,12 @@ import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.domain.model.payment.PaymentStatus;
 import me.jamie.paymentspractice.dto.CheckoutItemRequest;
 import me.jamie.paymentspractice.dto.LineItemRecord;
+import me.jamie.paymentspractice.dto.OrderDto;
 import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.InsufficientStockException;
+import me.jamie.paymentspractice.exception.OrderNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
-import me.jamie.paymentspractice.service.audit.AuditAction;
-import me.jamie.paymentspractice.service.audit.AuditService;
-import me.jamie.paymentspractice.service.audit.AuditType;
+import me.jamie.paymentspractice.service.audit.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,7 +36,11 @@ public class OrderService {
         this.inventoryService = inventoryService;
         this.auditService = auditService;
     }
+    public OrderDto getOrder(String id) throws PersistenceException, OrderNotFoundException {
+        return OrderDto.from(buildOrder(dao.findById(id)));
+    }
 
+    //needs to be changed to return List of OrderDtos
     public List<Order> getAllOrders() throws PersistenceException {
         List<OrderRecord> records = dao.findAll();
         List<Order> orders = new ArrayList<>();
@@ -160,6 +164,49 @@ public class OrderService {
             auditService.logFailure(AuditType.ORDER, AuditAction.CAPTURE, order.getId(), e.getMessage());
             throw e;
         }
+    }
+    public OrderDto fulfil(String orderId) throws PersistenceException, OrderNotFoundException {
+        Order order = buildOrder(dao.findById(orderId));
+        if(order.getStatus() != OrderStatus.PAID){
+            throw new IllegalStateException("Order not in PAID state");
+        }
+        try {
+            auditService.logAttempt(AuditType.ORDER, AuditAction.FULFIL, orderId);
+            //at the moment this method is just marking fulfilled or not, so no reason to fail (apart from persistence issue)
+            //any additional business logic in fulfilling order will go here
+            // then we will need to split off into if success, else (like other methods)
+            order.markFulfilled();
+            dao.save(toRecord(order));
+            auditService.logSuccess(AuditType.ORDER, AuditAction.FULFIL, orderId);
+
+        } catch (PersistenceException e){
+            order.cancel();
+            dao.save(toRecord(order));
+            auditService.logFailure(AuditType.ORDER, AuditAction.FULFIL, orderId, e.getMessage());
+        }
+        return OrderDto.from(order);
+    }
+    public OrderDto complete(String orderId) throws PersistenceException, OrderNotFoundException {
+        Order order = buildOrder(dao.findById(orderId));
+        if(order.getStatus() != OrderStatus.FULFILLED){
+            throw new IllegalStateException("Order not in FULFILLED state");
+        }
+        try {
+            auditService.logAttempt(AuditType.ORDER, AuditAction.COMPLETE, orderId);
+            //could for example check if this has been fulfilled more than 10 days ago
+            // if not, then it is too soon to be completed, refunds can still be requested
+            // cant complete order
+
+            order.markCompleted();
+            dao.save(toRecord(order));
+            auditService.logSuccess(AuditType.ORDER, AuditAction.COMPLETE, orderId);
+
+        } catch (PersistenceException e){
+            order.cancel();
+            dao.save(toRecord(order));
+            auditService.logFailure(AuditType.ORDER, AuditAction.COMPLETE, orderId, e.getMessage());
+        }
+        return OrderDto.from(order);
     }
 
     private Order buildOrder(OrderRecord record) throws PersistenceException {

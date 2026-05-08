@@ -4,8 +4,7 @@ public enum OrderStatus {
     CREATED, //order intially created - has payment attached but not auth yet
     READY, //order ready - user payment has been auth, but stock not yet reserved
     RESERVED, //stock has been reserved - need to capture payment
-    PAID, // payment captured - now its on the merchant to fulfil the order
-    PROCESSING, // process of fulfilling the order - building, in shipping, etc.
+    PAID, // payment captured - now its in process of fulfilling the order - building, in shipping, etc.
     FULFILLED, // order fulfilled - customer has their order - but it is still refundable
 
     //processing very similar to paid, therefore PAID -> PROCESSING won't happen automatically,

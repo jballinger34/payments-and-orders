@@ -9,6 +9,8 @@ public enum AuditAction {
     CAPTURE,
 
     //order
+    FULFIL,
+    COMPLETE,
 
     //inventory
     SET_NAME,

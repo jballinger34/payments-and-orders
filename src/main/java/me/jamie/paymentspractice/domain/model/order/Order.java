@@ -25,7 +25,7 @@ public class Order {
     private Order(String id, List<LineItem> items){
         this.id = id;
         this.items = items;
-    };
+    }
 
     public static Order fromPersistence(String id, List<LineItem> items, Payment payment, OrderStatus status) {
         Order order = new Order(id, items);
@@ -62,11 +62,29 @@ public class Order {
         }
         status = OrderStatus.PAID;
     }
-    public void cancel() {
-        if (this.status == OrderStatus.COMPLETED) {
-            throw new IllegalStateException("Cannot cancel a COMPLETED order");
+    public void markFulfilled(){
+        if(status != OrderStatus.PAID){
+            throw new IllegalStateException("Only PAID orders can be marked as fulfilled ");
         }
-        status = OrderStatus.CANCELLED;
+        status = OrderStatus.FULFILLED;
+    }
+    public void markCompleted(){
+        if(status != OrderStatus.FULFILLED){
+            throw new IllegalStateException("Only FULFILLED orders can be marked as completed");
+        }
+        status = OrderStatus.COMPLETED;
+    }
+
+
+    public void cancel() {
+        if(status == OrderStatus.CREATED || status == OrderStatus.READY || status == OrderStatus.RESERVED){
+            status = OrderStatus.CANCELLED;
+        } else if (status == OrderStatus.PAID || status == OrderStatus.FULFILLED) {
+            status = OrderStatus.REFUND_REQUESTED;
+        } else {
+            throw new IllegalStateException("Cannot cancel an order in state " + status);
+        }
+
     }
 
 
