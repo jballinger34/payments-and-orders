@@ -1,6 +1,5 @@
 package me.jamie.paymentspractice.controller;
 
-import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.dto.CheckoutItemRequest;
@@ -9,6 +8,7 @@ import me.jamie.paymentspractice.dto.ProductDto;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.OrderService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,11 +26,13 @@ public class CustomerController {
     }
 
     @GetMapping("/products")
-    public List<ProductDto> browse() throws PersistenceException {
-        return inventoryService.getAllProducts()
+    public ResponseEntity<List<ProductDto>> browse() throws PersistenceException {
+        return ResponseEntity.ok(
+                inventoryService.getAllProducts()
                 .stream()
                 .map(ProductDto::from)
-                .toList();
+                .toList()
+        );
     }
 
     // TODO IMPORTANT!!!
@@ -43,7 +45,7 @@ public class CustomerController {
     // whether there is enough stock?
     // taking discount code? apply it in place order?
     @PostMapping("/checkout")
-    public OrderDto checkout(@RequestBody List<CheckoutItemRequest> cart)
+    public ResponseEntity<OrderDto> checkout(@RequestBody List<CheckoutItemRequest> cart)
             throws PersistenceException {
 
         Order order = orderService.placeOrder(cart, PaymentMethod.CARD);
@@ -52,6 +54,6 @@ public class CustomerController {
         orderService.reserveStock(order);
         orderService.capturePayment(order);
 
-        return OrderDto.from(order);
+        return ResponseEntity.ok(OrderDto.from(order));
     }
 }
