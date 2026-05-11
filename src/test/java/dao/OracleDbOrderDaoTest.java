@@ -1,6 +1,5 @@
 package dao;
 
-import me.jamie.paymentspractice.dao.order.OracleDbOrderDao;
 import me.jamie.paymentspractice.dao.order.OrderDao;
 import me.jamie.paymentspractice.dto.LineItemRecord;
 import me.jamie.paymentspractice.dto.OrderRecord;
@@ -12,7 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;

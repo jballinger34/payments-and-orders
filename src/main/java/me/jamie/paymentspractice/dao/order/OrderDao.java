@@ -1,6 +1,5 @@
 package me.jamie.paymentspractice.dao.order;
 
-import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.PersistenceException;
 

@@ -1,13 +1,6 @@
 package me.jamie.paymentspractice.dao.order;
 
 import jakarta.annotation.PostConstruct;
-import me.jamie.paymentspractice.dao.inventory.InventoryDao;
-import me.jamie.paymentspractice.dao.payment.PaymentDao;
-import me.jamie.paymentspractice.domain.model.LineItem;
-import me.jamie.paymentspractice.domain.model.Product;
-import me.jamie.paymentspractice.domain.model.order.Order;
-import me.jamie.paymentspractice.domain.model.order.OrderStatus;
-import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.dto.LineItemRecord;
 import me.jamie.paymentspractice.dto.OrderRecord;
 import me.jamie.paymentspractice.exception.InvalidDataException;
