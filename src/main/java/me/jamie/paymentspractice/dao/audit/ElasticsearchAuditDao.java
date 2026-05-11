@@ -2,7 +2,7 @@ package me.jamie.paymentspractice.dao.audit;
 
 import me.jamie.paymentspractice.document.AuditDocument;
 import me.jamie.paymentspractice.exception.PersistenceException;
-import me.jamie.paymentspractice.repository.AuditElasticsearchRepository;
+import me.jamie.paymentspractice.repository.ElasticsearchAuditRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ElasticsearchAuditDao implements AuditDao {
 
-    private final AuditElasticsearchRepository repository;
+    private final ElasticsearchAuditRepository repository;
 
-    public ElasticsearchAuditDao(AuditElasticsearchRepository repository){
+    public ElasticsearchAuditDao(ElasticsearchAuditRepository repository){
         this.repository = repository;
     }
 
