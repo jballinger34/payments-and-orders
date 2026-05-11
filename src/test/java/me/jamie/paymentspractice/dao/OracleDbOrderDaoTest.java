@@ -1,4 +1,4 @@
-package dao;
+package me.jamie.paymentspractice.dao;
 
 import me.jamie.paymentspractice.dao.order.OrderDao;
 import me.jamie.paymentspractice.dto.LineItemRecord;

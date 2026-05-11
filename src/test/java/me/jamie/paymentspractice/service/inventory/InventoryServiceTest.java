@@ -1,7 +1,7 @@
-package service.inventory;
+package me.jamie.paymentspractice.service.inventory;
 
 
-import stubs.InventoryDaoStubImpl;
+import me.jamie.paymentspractice.stubs.InventoryDaoStubImpl;
 import me.jamie.paymentspractice.dao.inventory.InventoryDao;
 import me.jamie.paymentspractice.exception.InsufficientStockException;
 import me.jamie.paymentspractice.exception.PersistenceException;
@@ -10,7 +10,7 @@ import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.audit.AuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import stubs.AuditServiceStub;
+import me.jamie.paymentspractice.stubs.AuditServiceStub;
 
 
 import static org.junit.jupiter.api.Assertions.*;

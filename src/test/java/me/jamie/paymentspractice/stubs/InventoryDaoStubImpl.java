@@ -1,4 +1,4 @@
-package stubs;
+package me.jamie.paymentspractice.stubs;
 
 import me.jamie.paymentspractice.dao.inventory.InventoryDao;
 import me.jamie.paymentspractice.domain.model.Product;

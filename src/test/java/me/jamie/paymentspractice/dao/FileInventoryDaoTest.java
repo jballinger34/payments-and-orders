@@ -1,4 +1,4 @@
-package dao;
+package me.jamie.paymentspractice.dao;
 
 import me.jamie.paymentspractice.dao.inventory.FileInventoryDao;
 import me.jamie.paymentspractice.dao.inventory.InventoryDao;
@@ -7,6 +7,9 @@ import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.crypto.spec.DESedeKeySpec;
 import java.io.*;
@@ -16,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileInventoryDaoTest {
 
-    private InventoryDao testDao;
-    private final String testFile = "test_inventory.txt";
+    private FileInventoryDao testDao;
+    private String testFile = "test_inventory.txt";
 
     @BeforeEach
     void setUp() throws IOException, PersistenceException {
@@ -55,6 +58,7 @@ class FileInventoryDaoTest {
             out.flush();
             //CONSTRUCTOR CALLS THE LOAD METHOD THAT WE ARE TESTING
             testDao = new FileInventoryDao(testFile);
+            testDao.init();
             int quantityFound = testDao.findById(productId).getStock();
             assertEquals(quantity, quantityFound);
 

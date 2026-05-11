@@ -1,4 +1,4 @@
-package stubs;
+package me.jamie.paymentspractice.stubs;
 
 import me.jamie.paymentspractice.service.audit.AuditAction;
 import me.jamie.paymentspractice.service.audit.AuditService;

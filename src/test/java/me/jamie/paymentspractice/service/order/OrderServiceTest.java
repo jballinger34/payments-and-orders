@@ -1,8 +1,8 @@
-package service.order;
+package me.jamie.paymentspractice.service.order;
 
-import stubs.OrderDaoStubImpl;
+import me.jamie.paymentspractice.dto.CheckoutItemRequest;
+import me.jamie.paymentspractice.stubs.OrderDaoStubImpl;
 import me.jamie.paymentspractice.dao.order.OrderDao;
-import me.jamie.paymentspractice.domain.model.LineItem;
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.order.OrderStatus;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
@@ -16,9 +16,9 @@ import me.jamie.paymentspractice.service.audit.AuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import stubs.AuditServiceStub;
-import stubs.InventoryServiceStub;
-import stubs.PaymentServiceStub;
+import me.jamie.paymentspractice.stubs.AuditServiceStub;
+import me.jamie.paymentspractice.stubs.InventoryServiceStub;
+import me.jamie.paymentspractice.stubs.PaymentServiceStub;
 
 import java.util.List;
 
@@ -28,8 +28,8 @@ class OrderServiceTest {
 
     OrderService orderService;
     InventoryService inventoryService;
-    private static List<LineItem> ITEM_10_IN_STOCK;
-    private static List<LineItem> ITEM_NONE_IN_STOCK;
+    private static List<CheckoutItemRequest> ITEM_10_IN_STOCK;
+    private static List<CheckoutItemRequest> ITEM_NONE_IN_STOCK;
 
 
     @BeforeEach
@@ -43,8 +43,8 @@ class OrderServiceTest {
 
         orderService = new OrderService(orderDao,paymentService,inventoryService,auditService);
 
-        ITEM_10_IN_STOCK = List.of(new LineItem(inventoryService.getProduct("PRODUCT_1"), 1,1));
-        ITEM_NONE_IN_STOCK = List.of(new LineItem(inventoryService.getProduct("PRODUCT_2"), 1, 1));
+        ITEM_10_IN_STOCK = List.of(new CheckoutItemRequest("PRODUCT_1", 1));
+        ITEM_NONE_IN_STOCK = List.of(new CheckoutItemRequest("PRODUCT_2", 1));
     }
 
     //getAllOrders()
