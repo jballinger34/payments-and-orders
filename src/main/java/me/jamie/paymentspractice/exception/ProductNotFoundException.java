@@ -1,7 +1,7 @@
 package me.jamie.paymentspractice.exception;
 
-public class ProductNotFoundException extends RuntimeException {
+public class ProductNotFoundException extends NotFoundException {
     public ProductNotFoundException(String message) {
-        super(message);
+        super("PRODUCT", message);
     }
 }

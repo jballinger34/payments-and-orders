@@ -1,7 +1,7 @@
 package me.jamie.paymentspractice.exception;
 
-public class OrderNotFoundException extends RuntimeException {
+public class OrderNotFoundException extends NotFoundException {
     public OrderNotFoundException(String message) {
-        super(message);
+        super("ORDER", message);
     }
 }
