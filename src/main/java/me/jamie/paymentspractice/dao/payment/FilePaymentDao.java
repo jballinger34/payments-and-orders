@@ -16,7 +16,6 @@ import java.io.*;
 import java.util.*;
 
 @Repository
-@Primary
 public class FilePaymentDao implements PaymentDao {
 
     // currently when we load from file we load the same payment multiple times
