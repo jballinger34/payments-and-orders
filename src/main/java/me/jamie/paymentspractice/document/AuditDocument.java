@@ -5,6 +5,8 @@ import me.jamie.paymentspractice.service.audit.AuditStatus;
 import me.jamie.paymentspractice.service.audit.AuditType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 
 import java.time.LocalDateTime;
@@ -17,12 +19,20 @@ public class AuditDocument {
     @Id
     private String id;
 
+    @Field(type = FieldType.Date)
     private LocalDateTime timestamp;
+
+    @Field(type = FieldType.Keyword)
     private AuditType type;
+
+    @Field(type = FieldType.Keyword)
     private AuditAction action;
+
     //orderId, productId, etc.
+    @Field(type = FieldType.Keyword)
     private String entityId;
-    //ATTEMPT, SUCCESS, FAILURE
+
+    @Field(type = FieldType.Keyword)
     private AuditStatus status;
 
     //any additonal data
