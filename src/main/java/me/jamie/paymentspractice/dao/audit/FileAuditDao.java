@@ -1,5 +1,6 @@
 package me.jamie.paymentspractice.dao.audit;
 
+import me.jamie.paymentspractice.document.AuditDocument;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -19,9 +20,9 @@ public class FileAuditDao implements AuditDao {
 
 
     @Override
-    public void writeEntry(String entry) throws PersistenceException {
+    public void writeEntry(AuditDocument entry) throws PersistenceException {
         try(PrintWriter out = new PrintWriter(new FileWriter(auditFile,true))){
-            out.println(LocalDateTime.now() + " " + entry);
+            out.println(entry.toString());
         } catch (IOException e) {
             throw new PersistenceException("Could not write audit entry",e);
         }
