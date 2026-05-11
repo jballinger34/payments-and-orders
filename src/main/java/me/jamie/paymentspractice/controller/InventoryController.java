@@ -54,7 +54,7 @@ public class InventoryController {
                                    @RequestParam double cost,
                                    @RequestParam int stock) throws PersistenceException{
         Product product = service.createProduct(name, cost, stock);
-        ProductDto dto = new ProductDto(product.getId(), product.getName(), product.getStock(), product.getStock());
+        ProductDto dto = new ProductDto(product.getId(), product.getName(), product.getCost(), product.getStock());
         return ResponseEntity.ok(dto);
     }
 
