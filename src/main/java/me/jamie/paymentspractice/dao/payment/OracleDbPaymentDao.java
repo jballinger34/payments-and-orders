@@ -1,6 +1,7 @@
 package me.jamie.paymentspractice.dao.payment;
 
 import me.jamie.paymentspractice.domain.model.payment.Payment;
+import me.jamie.paymentspractice.dto.PaymentRecord;
 import me.jamie.paymentspractice.exception.PaymentNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.repository.OracleDbPaymentRepository;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Primary
 @Repository
@@ -21,16 +23,19 @@ public class OracleDbPaymentDao implements PaymentDao {
 
     @Override
     public void save(Payment payment) throws PersistenceException {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        repo.save(PaymentRecord.from(payment));
     }
 
     @Override
     public Payment findById(String id) throws PaymentNotFoundException, PersistenceException {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        Optional<PaymentRecord> record = repo.findById(id);
+        if (record.isEmpty()) throw new PaymentNotFoundException("No payment with id: " + id);
+
+        return Payment.fromPersistence(record.get());
     }
 
     @Override
     public List<Payment> findAll() throws PersistenceException {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        return repo.findAll().stream().map(Payment::fromPersistence).toList();
     }
 }
