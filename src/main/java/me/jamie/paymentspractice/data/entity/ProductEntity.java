@@ -2,6 +2,7 @@ package me.jamie.paymentspractice.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import me.jamie.paymentspractice.domain.model.Product;
 
 @Entity
 public class ProductEntity {
@@ -13,11 +14,15 @@ public class ProductEntity {
     private int stock;
 
     public ProductEntity(){}
-    public ProductEntity(String id, int stock, double cost, String name) {
+    public ProductEntity(String id, String name, double cost, int stock) {
         this.id = id;
         this.stock = stock;
         this.cost = cost;
         this.name = name;
+    }
+
+    public static ProductEntity from(Product product){
+        return new ProductEntity(product.getId(), product.getName(), product.getCost(), product.getStock());
     }
 
     public String getId() {

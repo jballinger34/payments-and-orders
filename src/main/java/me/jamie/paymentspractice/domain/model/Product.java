@@ -1,5 +1,7 @@
 package me.jamie.paymentspractice.domain.model;
 
+import me.jamie.paymentspractice.data.entity.ProductEntity;
+
 public class Product {
 
     private final String id;
@@ -12,6 +14,10 @@ public class Product {
         this.name = name;
         this.cost = cost;
         this.stock = stock;
+    }
+
+    public static Product fromPersistence(ProductEntity entity) {
+        return new Product(entity.getId(), entity.getName(), entity.getCost(), entity.getStock());
     }
 
     public String getId() {
