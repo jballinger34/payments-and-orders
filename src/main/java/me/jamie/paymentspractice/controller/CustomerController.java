@@ -5,6 +5,7 @@ import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.data.request.CheckoutItemRequest;
 import me.jamie.paymentspractice.data.dto.OrderDto;
 import me.jamie.paymentspractice.data.dto.ProductDto;
+import me.jamie.paymentspractice.exception.InsufficientStockException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.OrderService;
@@ -44,9 +45,11 @@ public class CustomerController {
     // whether cart is empty? need to handle this
     // whether there is enough stock?
     // taking discount code? apply it in place order?
+
+    //controller shouldnt know checkout sequencing, call a service .checkout()
     @PostMapping("/checkout")
     public ResponseEntity<OrderDto> checkout(@RequestBody List<CheckoutItemRequest> cart)
-            throws PersistenceException {
+            throws PersistenceException, InsufficientStockException {
 
         Order order = orderService.placeOrder(cart, PaymentMethod.CARD);
 
