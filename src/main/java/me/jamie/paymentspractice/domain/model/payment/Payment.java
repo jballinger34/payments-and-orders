@@ -1,6 +1,6 @@
 package me.jamie.paymentspractice.domain.model.payment;
 
-import me.jamie.paymentspractice.dto.PaymentRecord;
+import me.jamie.paymentspractice.data.entity.PaymentEntity;
 
 public class Payment {
 
@@ -25,7 +25,7 @@ public class Payment {
         payment.failureReason = reason;
         return payment;
     }
-    public static Payment fromPersistence(PaymentRecord record){
+    public static Payment fromPersistence(PaymentEntity record){
         return fromPersistence(record.getId(), record.getAmount(), record.getPaymentMethod(), record.getStatus(), record.getFailureReason());
     }
 

@@ -1,6 +1,6 @@
 package me.jamie.paymentspractice.dao.order;
 
-import me.jamie.paymentspractice.dto.OrderRecord;
+import me.jamie.paymentspractice.data.record.OrderRecord;
 import me.jamie.paymentspractice.exception.PersistenceException;
 
 import java.util.List;

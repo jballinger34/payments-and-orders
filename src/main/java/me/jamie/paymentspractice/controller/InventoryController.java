@@ -1,7 +1,7 @@
 package me.jamie.paymentspractice.controller;
 
 import me.jamie.paymentspractice.domain.model.Product;
-import me.jamie.paymentspractice.dto.ProductDto;
+import me.jamie.paymentspractice.data.dto.ProductDto;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
 import me.jamie.paymentspractice.service.InventoryService;

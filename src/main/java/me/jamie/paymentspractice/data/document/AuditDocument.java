@@ -1,4 +1,4 @@
-package me.jamie.paymentspractice.document;
+package me.jamie.paymentspractice.data.document;
 
 import me.jamie.paymentspractice.service.audit.AuditAction;
 import me.jamie.paymentspractice.service.audit.AuditStatus;

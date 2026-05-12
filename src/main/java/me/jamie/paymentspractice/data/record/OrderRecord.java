@@ -1,4 +1,4 @@
-package me.jamie.paymentspractice.dto;
+package me.jamie.paymentspractice.data.record;
 
 import java.util.List;
 

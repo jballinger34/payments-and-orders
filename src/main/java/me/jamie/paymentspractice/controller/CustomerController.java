@@ -2,9 +2,9 @@ package me.jamie.paymentspractice.controller;
 
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
-import me.jamie.paymentspractice.dto.CheckoutItemRequest;
-import me.jamie.paymentspractice.dto.OrderDto;
-import me.jamie.paymentspractice.dto.ProductDto;
+import me.jamie.paymentspractice.data.request.CheckoutItemRequest;
+import me.jamie.paymentspractice.data.dto.OrderDto;
+import me.jamie.paymentspractice.data.dto.ProductDto;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.OrderService;

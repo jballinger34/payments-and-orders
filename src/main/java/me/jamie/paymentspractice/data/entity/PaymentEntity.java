@@ -1,4 +1,4 @@
-package me.jamie.paymentspractice.dto;
+package me.jamie.paymentspractice.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,7 +10,7 @@ import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.domain.model.payment.PaymentStatus;
 
 @Entity
-public class PaymentRecord {
+public class PaymentEntity {
     @Id
     private String id;
     private double amount;
@@ -21,9 +21,9 @@ public class PaymentRecord {
     @Enumerated(EnumType.STRING)
     private PaymentFailureReason failureReason;
 
-    public PaymentRecord(){}
+    public PaymentEntity(){}
 
-    public PaymentRecord(String id, double amount, PaymentMethod paymentMethod, PaymentStatus status, PaymentFailureReason failureReason) {
+    public PaymentEntity(String id, double amount, PaymentMethod paymentMethod, PaymentStatus status, PaymentFailureReason failureReason) {
         this.amount = amount;
         this.id = id;
         this.paymentMethod = paymentMethod;
@@ -71,8 +71,8 @@ public class PaymentRecord {
         this.amount = amount;
     }
 
-    public static PaymentRecord from(Payment payment){
-        return new PaymentRecord(payment.getId(), payment.getAmount(), payment.getPaymentMethod(), payment.getStatus(), payment.getFailureReason());
+    public static PaymentEntity from(Payment payment){
+        return new PaymentEntity(payment.getId(), payment.getAmount(), payment.getPaymentMethod(), payment.getStatus(), payment.getFailureReason());
     }
 
 }

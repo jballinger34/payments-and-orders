@@ -1,7 +1,7 @@
 package me.jamie.paymentspractice.stubs;
 
 import me.jamie.paymentspractice.dao.order.OrderDao;
-import me.jamie.paymentspractice.dto.OrderRecord;
+import me.jamie.paymentspractice.data.record.OrderRecord;
 import me.jamie.paymentspractice.exception.OrderNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;

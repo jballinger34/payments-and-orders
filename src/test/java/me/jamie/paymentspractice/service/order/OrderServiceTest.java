@@ -1,6 +1,6 @@
 package me.jamie.paymentspractice.service.order;
 
-import me.jamie.paymentspractice.dto.CheckoutItemRequest;
+import me.jamie.paymentspractice.data.request.CheckoutItemRequest;
 import me.jamie.paymentspractice.stubs.OrderDaoStubImpl;
 import me.jamie.paymentspractice.dao.order.OrderDao;
 import me.jamie.paymentspractice.domain.model.order.Order;

@@ -2,8 +2,8 @@ package me.jamie.paymentspractice.dao.order;
 
 import java.sql.*;
 
-import me.jamie.paymentspractice.dto.LineItemRecord;
-import me.jamie.paymentspractice.dto.OrderRecord;
+import me.jamie.paymentspractice.data.record.LineItemRecord;
+import me.jamie.paymentspractice.data.record.OrderRecord;
 import me.jamie.paymentspractice.exception.OrderNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import org.springframework.context.annotation.Primary;

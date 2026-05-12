@@ -1,7 +1,7 @@
 package me.jamie.paymentspractice.dao.payment;
 
 import me.jamie.paymentspractice.domain.model.payment.Payment;
-import me.jamie.paymentspractice.dto.PaymentRecord;
+import me.jamie.paymentspractice.data.entity.PaymentEntity;
 import me.jamie.paymentspractice.exception.PaymentNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.repository.OracleDbPaymentRepository;
@@ -23,12 +23,12 @@ public class OracleDbPaymentDao implements PaymentDao {
 
     @Override
     public void save(Payment payment) throws PersistenceException {
-        repo.save(PaymentRecord.from(payment));
+        repo.save(PaymentEntity.from(payment));
     }
 
     @Override
     public Payment findById(String id) throws PaymentNotFoundException, PersistenceException {
-        Optional<PaymentRecord> record = repo.findById(id);
+        Optional<PaymentEntity> record = repo.findById(id);
         if (record.isEmpty()) throw new PaymentNotFoundException(id);
 
         return Payment.fromPersistence(record.get());

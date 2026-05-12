@@ -2,8 +2,8 @@ package me.jamie.paymentspractice.service.audit;
 
 
 import me.jamie.paymentspractice.dao.audit.AuditDao;
-import me.jamie.paymentspractice.document.AuditDocument;
-import me.jamie.paymentspractice.document.AuditDocumentBuilder;
+import me.jamie.paymentspractice.data.document.AuditDocument;
+import me.jamie.paymentspractice.data.document.AuditDocumentBuilder;
 import me.jamie.paymentspractice.exception.PersistenceException;;
 import org.springframework.stereotype.Service;
 

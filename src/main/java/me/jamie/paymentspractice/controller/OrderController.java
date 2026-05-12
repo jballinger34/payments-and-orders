@@ -1,7 +1,6 @@
 package me.jamie.paymentspractice.controller;
 
-import me.jamie.paymentspractice.domain.model.order.Order;
-import me.jamie.paymentspractice.dto.OrderDto;
+import me.jamie.paymentspractice.data.dto.OrderDto;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.OrderService;
 import org.springframework.http.ResponseEntity;

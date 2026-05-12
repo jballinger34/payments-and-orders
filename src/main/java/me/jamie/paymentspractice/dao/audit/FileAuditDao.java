@@ -1,6 +1,6 @@
 package me.jamie.paymentspractice.dao.audit;
 
-import me.jamie.paymentspractice.document.AuditDocument;
+import me.jamie.paymentspractice.data.document.AuditDocument;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.LocalDateTime;
 
 @Repository
 public class FileAuditDao implements AuditDao {
