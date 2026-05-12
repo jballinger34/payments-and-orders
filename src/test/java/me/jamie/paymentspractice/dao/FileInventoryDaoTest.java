@@ -68,7 +68,7 @@ class FileInventoryDaoTest {
     }
 
     @Test
-    void testAddAlterGetStock() throws PersistenceException {
+    void testAddGetStock() throws PersistenceException {
         String productId = "TEST_PRODUCT_1";
         testDao.put(productId,new Product(productId,productId,1,10));
         assertEquals(10, testDao.findById(productId).getStock());
