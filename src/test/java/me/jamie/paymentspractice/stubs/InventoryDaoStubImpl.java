@@ -21,7 +21,7 @@ public class InventoryDaoStubImpl implements InventoryDao {
     @Override
     public Product findById(String productId) throws PersistenceException, ProductNotFoundException {
         if(!inventory.containsKey(productId)){
-            throw new ProductNotFoundException("Product not found");
+            throw new ProductNotFoundException(productId);
         }
         return inventory.get(productId);
     }
@@ -39,7 +39,7 @@ public class InventoryDaoStubImpl implements InventoryDao {
     @Override
     public void remove(String productId) throws PersistenceException, ProductNotFoundException {
         if(!inventory.containsKey(productId)){
-            throw new ProductNotFoundException("Product not found");
+            throw new ProductNotFoundException(productId);
         }
         inventory.remove(productId);
     }

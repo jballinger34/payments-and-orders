@@ -29,7 +29,7 @@ public class OracleDbPaymentDao implements PaymentDao {
     @Override
     public Payment findById(String id) throws PaymentNotFoundException, PersistenceException {
         Optional<PaymentRecord> record = repo.findById(id);
-        if (record.isEmpty()) throw new PaymentNotFoundException("No payment with id: " + id);
+        if (record.isEmpty()) throw new PaymentNotFoundException(id);
 
         return Payment.fromPersistence(record.get());
     }

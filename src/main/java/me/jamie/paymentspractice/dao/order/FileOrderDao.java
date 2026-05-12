@@ -127,7 +127,7 @@ public class FileOrderDao implements OrderDao {
     @Override
     public OrderRecord findById(String orderId) {
         OrderRecord order = orders.get(orderId);
-        if(order == null) throw new OrderNotFoundException("No order with ID: " + orderId);
+        if(order == null) throw new OrderNotFoundException(orderId);
         return order;
     }
 

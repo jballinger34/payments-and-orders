@@ -83,7 +83,7 @@ public class FileInventoryDao implements InventoryDao {
     @Override
     public Product findById(String productId) throws ProductNotFoundException {
         if(!inventory.containsKey(productId)){
-            throw new ProductNotFoundException("Product " + productId + " not in inventory");
+            throw new ProductNotFoundException(productId);
         }
         return inventory.get(productId);
     }
@@ -95,7 +95,7 @@ public class FileInventoryDao implements InventoryDao {
     @Override
     public void remove(String productId) throws PersistenceException {
         if(!inventory.containsKey(productId)){
-            throw new ProductNotFoundException("Product " + productId + " not in inventory");
+            throw new ProductNotFoundException(productId);
         }
         inventory.remove(productId);
         writeAllStock();

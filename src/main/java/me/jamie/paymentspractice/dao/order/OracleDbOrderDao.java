@@ -95,7 +95,7 @@ public class OracleDbOrderDao implements OrderDao {
             ResultSet orderRs = orderStmt.executeQuery();
 
             if(!orderRs.next()){
-                throw new OrderNotFoundException("No order with Id: " + orderId);
+                throw new OrderNotFoundException(orderId);
             }
 
             List<LineItemRecord> items = new ArrayList<>();

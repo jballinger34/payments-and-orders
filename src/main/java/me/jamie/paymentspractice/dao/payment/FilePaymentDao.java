@@ -44,7 +44,7 @@ public class FilePaymentDao implements PaymentDao {
     @Override
     public Payment findById(String id) throws PaymentNotFoundException {
         Payment payment = payments.get(id);
-        if(payment == null) throw new PaymentNotFoundException("No payment with ID: " + id);
+        if(payment == null) throw new PaymentNotFoundException(id);
         return payment;
     }
 

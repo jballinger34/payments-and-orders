@@ -2,6 +2,7 @@ package me.jamie.paymentspractice.stubs;
 
 import me.jamie.paymentspractice.dao.order.OrderDao;
 import me.jamie.paymentspractice.dto.OrderRecord;
+import me.jamie.paymentspractice.exception.OrderNotFoundException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
 
@@ -18,7 +19,7 @@ public class OrderDaoStubImpl implements OrderDao {
     @Override
     public OrderRecord findById(String orderId) throws ProductNotFoundException {
         if(!records.containsKey(orderId)){
-            throw new ProductNotFoundException("Order doesn't exist.");
+            throw new OrderNotFoundException(orderId);
         }
         return records.get(orderId);
     }
