@@ -25,12 +25,7 @@ public class InventoryController {
         return ResponseEntity.ok(
                 service.getAllProducts()
                     .stream()
-                    .map(product -> new ProductDto(
-                            product.getId(),
-                            product.getName(),
-                            product.getCost(),
-                            product.getStock()
-                    ))
+                    .map(ProductDto::from)
                     .toList()
         );
     }
