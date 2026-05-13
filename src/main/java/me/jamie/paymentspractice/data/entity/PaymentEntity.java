@@ -16,6 +16,9 @@ public class PaymentEntity {
     private double amount;
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
+
+    private String providerReference;
+
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
     @Enumerated(EnumType.STRING)
@@ -23,10 +26,11 @@ public class PaymentEntity {
 
     public PaymentEntity(){}
 
-    public PaymentEntity(String id, double amount, PaymentMethod paymentMethod, PaymentStatus status, PaymentFailureReason failureReason) {
+    public PaymentEntity(String id, double amount, PaymentMethod paymentMethod, String providerReference, PaymentStatus status, PaymentFailureReason failureReason) {
         this.amount = amount;
         this.id = id;
         this.paymentMethod = paymentMethod;
+        this.providerReference = providerReference;
         this.status = status;
         this.failureReason = failureReason;
     }
@@ -51,6 +55,9 @@ public class PaymentEntity {
         return paymentMethod;
     }
 
+    public String getProviderReference() {
+        return providerReference;
+    }
     public double getAmount() {
         return amount;
     }
@@ -72,7 +79,7 @@ public class PaymentEntity {
     }
 
     public static PaymentEntity from(Payment payment){
-        return new PaymentEntity(payment.getId(), payment.getAmount(), payment.getPaymentMethod(), payment.getStatus(), payment.getFailureReason());
+        return new PaymentEntity(payment.getId(), payment.getAmount(), payment.getPaymentMethod(), payment.getProviderReference(), payment.getStatus(), payment.getFailureReason());
     }
 
 }

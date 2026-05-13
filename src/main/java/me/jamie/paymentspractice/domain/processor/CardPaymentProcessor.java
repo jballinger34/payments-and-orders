@@ -25,7 +25,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
         PaymentResponse authResponse = gateway.authorize(payment);
 
         if(authResponse.isSuccessful()){
-            payment.authorize();
+            payment.authorize(authResponse.getProviderReference());
         } else {
             payment.fail(authResponse.getFailureReason());
         }
