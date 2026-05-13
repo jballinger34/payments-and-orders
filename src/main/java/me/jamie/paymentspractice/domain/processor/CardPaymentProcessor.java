@@ -21,7 +21,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
     }
 
     @Override
-    public void authorize(Payment payment) {
+    public Payment authorize(Payment payment) {
         PaymentResponse authResponse = gateway.authorize(payment);
 
         if(authResponse.isSuccessful()){
@@ -29,16 +29,17 @@ public class CardPaymentProcessor implements PaymentProcessor {
         } else {
             payment.fail(authResponse.getFailureReason());
         }
-
+        return payment;
     }
 
     @Override
-    public void capture(Payment payment) {
+    public Payment capture(Payment payment) {
         PaymentResponse captureResponse = gateway.capture(payment);
         if(captureResponse.isSuccessful()){
             payment.capture();
         } else {
             payment.fail(captureResponse.getFailureReason());
         }
+        return payment;
     }
 }

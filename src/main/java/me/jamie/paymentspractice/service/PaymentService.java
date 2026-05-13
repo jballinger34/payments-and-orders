@@ -47,16 +47,15 @@ public class PaymentService {
         PaymentProcessor processor = getValidProcessor(payment);
         auditService.logAttempt(AuditType.PAYMENT, AuditAction.AUTH, payment.getId());
 
-        processor.authorize(payment);
+        Payment updated = processor.authorize(payment);
         //save updated state
-        dao.save(payment);
-        if(payment.getStatus() == PaymentStatus.AUTHORIZED){
-            auditService.logSuccess(AuditType.PAYMENT, AuditAction.AUTH, payment.getId());
-
+        dao.save(updated);
+        if(updated.getStatus() == PaymentStatus.AUTHORIZED){
+            auditService.logSuccess(AuditType.PAYMENT, AuditAction.AUTH, updated.getId());
         } else {
-            auditService.logFailure(AuditType.PAYMENT,AuditAction.AUTH,payment.getId(), payment.getFailureReason().toString());
+            String reason = updated.getFailureReason() != null ? updated.getFailureReason().toString() : "UNKNOWN";
+            auditService.logFailure(AuditType.PAYMENT,AuditAction.AUTH,updated.getId(), reason);
         }
-
     }
     public void authorizePayment(String paymentId) throws PersistenceException, PaymentNotFoundException {
         Payment payment = dao.findById(paymentId);
@@ -66,12 +65,13 @@ public class PaymentService {
     public void capturePayment(Payment payment) throws PersistenceException {
         PaymentProcessor processor = getValidProcessor(payment);
         auditService.logAttempt(AuditType.PAYMENT, AuditAction.CAPTURE, payment.getId());
-        processor.capture(payment);
-        dao.save(payment);
-        if(payment.getStatus() == PaymentStatus.CAPTURED){
-            auditService.logSuccess(AuditType.PAYMENT, AuditAction.CAPTURE, payment.getId());
+        Payment updated = processor.capture(payment);
+        dao.save(updated);
+        if(updated.getStatus() == PaymentStatus.CAPTURED){
+            auditService.logSuccess(AuditType.PAYMENT, AuditAction.CAPTURE, updated.getId());
         } else {
-            auditService.logFailure(AuditType.PAYMENT, AuditAction.CAPTURE, payment.getId(), "NO_REASON_YET");
+            String reason = updated.getFailureReason() != null ? updated.getFailureReason().toString() : "UNKNOWN";
+            auditService.logFailure(AuditType.PAYMENT, AuditAction.CAPTURE, updated.getId(), reason);
         }
     }
 
@@ -86,7 +86,7 @@ public class PaymentService {
 
     private PaymentProcessor getValidProcessor(Payment payment) {
         if (payment == null) {
-            throw new NoSuchElementException("Payment not found");
+            throw new IllegalArgumentException("Payment not found") ;
         }
 
         PaymentProcessor processor = processors.get(payment.getPaymentMethod());

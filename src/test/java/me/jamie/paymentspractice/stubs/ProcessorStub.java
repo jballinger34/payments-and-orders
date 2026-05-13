@@ -11,12 +11,12 @@ public class ProcessorStub implements PaymentProcessor {
     }
 
     @Override
-    public void authorize(Payment payment) {
-
+    public Payment authorize(Payment payment) {
+        return payment;
     }
 
     @Override
-    public void capture(Payment payment) {
-
+    public Payment capture(Payment payment) {
+        return payment;
     }
 }

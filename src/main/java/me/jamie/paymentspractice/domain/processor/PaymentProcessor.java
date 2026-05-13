@@ -11,6 +11,6 @@ import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 public interface PaymentProcessor {
 
     PaymentMethod supports();
-    void authorize(Payment payment);
-    void capture(Payment payment);
+    Payment authorize(Payment payment);
+    Payment capture(Payment payment);
 }
