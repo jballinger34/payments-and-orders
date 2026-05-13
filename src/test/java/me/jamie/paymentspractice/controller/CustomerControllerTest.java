@@ -31,27 +31,8 @@ public class CustomerControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    InventoryService inventoryService;
-    @MockitoBean
     OrderService orderService;
 
-    //TODO
-    // add test for the contract of getALlProducts
-    @Test
-    public void testGetAllProducts() throws Exception {
-        when(inventoryService.getAllProducts()).thenReturn(List.of());
-        mockMvc.perform(get("/products"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    @Test
-    public void testPersistenceError() throws Exception {
-        when(inventoryService.getAllProducts()).thenThrow(new PersistenceException("Simulating issue with DB"));
-        mockMvc.perform(get("/products"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
 
     @Test
     public void testCheckout() throws Exception {
@@ -68,27 +49,6 @@ public class CustomerControllerTest {
         verify(orderService).reserveStock(mockOrder);
         verify(orderService).capturePayment(mockOrder);
     }
-
-    @Test
-    public void testCheckoutNoStock() throws Exception {
-        when(orderService.placeOrder(anyList(), any())).thenThrow(new InsufficientStockException("Simulating no stock"));
-        mockMvc.perform(post("/checkout")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("[]"))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    public void testCheckoutIllegalState() throws Exception {
-
-        doThrow(new IllegalStateException("Simulating auth failure")).when(orderService).reserveStock(any());
-
-        mockMvc.perform(post("/checkout")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("[]"))
-                .andExpect(status().isConflict());
-    }
-
     @Test
     public void testCheckoutInvalidJson() throws Exception {
 

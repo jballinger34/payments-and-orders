@@ -17,23 +17,11 @@ import java.util.List;
 @RestController
 public class CustomerController {
 
-    InventoryService inventoryService;
     OrderService orderService;
 
 
-    public CustomerController(InventoryService inventoryService, OrderService orderService){
-        this.inventoryService = inventoryService;
+    public CustomerController(OrderService orderService){
         this.orderService = orderService;
-    }
-
-    @GetMapping("/products")
-    public ResponseEntity<List<ProductDto>> browse() throws PersistenceException {
-        return ResponseEntity.ok(
-                inventoryService.getAllProducts()
-                .stream()
-                .map(ProductDto::from)
-                .toList()
-        );
     }
 
     // TODO IMPORTANT!!!
