@@ -69,8 +69,8 @@ public class PaymentServiceTest {
     @Test
     void testAuthSuccessFlow() throws Exception {
 
-        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, PaymentStatus.PENDING, null);
-        Payment authorised = Payment.fromPersistence("1",100.0, PaymentMethod.CARD, PaymentStatus.AUTHORIZED, null);
+        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, "1",PaymentStatus.PENDING, null);
+        Payment authorised = Payment.fromPersistence("1",100.0, PaymentMethod.CARD, "1",PaymentStatus.AUTHORIZED, null);
 
         when(processor.authorize(payment)).thenReturn(authorised);
 
@@ -84,8 +84,8 @@ public class PaymentServiceTest {
     @Test
     void testAuthFailureFlow() throws Exception {
 
-        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, PaymentStatus.PENDING, null);
-        Payment declined = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, PaymentStatus.FAILED, PaymentFailureReason.INSUFFICIENT_FUNDS);
+        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD,"1", PaymentStatus.PENDING, null);
+        Payment declined = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, "1", PaymentStatus.FAILED, PaymentFailureReason.INSUFFICIENT_FUNDS);
 
         when(processor.authorize(payment)).thenReturn(declined);
 
@@ -97,8 +97,8 @@ public class PaymentServiceTest {
     }
     @Test
     void testCaptureSuccessFlow() throws Exception {
-        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, PaymentStatus.AUTHORIZED, null);
-        Payment captured = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, PaymentStatus.CAPTURED, null);
+        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, "1", PaymentStatus.AUTHORIZED, null);
+        Payment captured = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, "1", PaymentStatus.CAPTURED, null);
 
         when(processor.capture(payment)).thenReturn(captured);
 
@@ -110,8 +110,8 @@ public class PaymentServiceTest {
     }
     @Test
     void testCaptureFailedFlow() throws Exception {
-        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, PaymentStatus.PENDING, null);
-        Payment declined = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, PaymentStatus.FAILED, PaymentFailureReason.FRAUD_SUSPECTED);
+        Payment payment = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, "1", PaymentStatus.PENDING, null);
+        Payment declined = Payment.fromPersistence("1", 100.0, PaymentMethod.CARD, "1", PaymentStatus.FAILED, PaymentFailureReason.FRAUD_SUSPECTED);
 
         when(processor.capture(payment)).thenReturn(declined);
 
