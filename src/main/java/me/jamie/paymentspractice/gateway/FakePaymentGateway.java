@@ -29,14 +29,4 @@ public class FakePaymentGateway implements PaymentGateway {
         return new PaymentResponse(true, null, "FAKE_PROVIDER_REFERENCE");
     }
 
-
-    @Override
-    public void onCleared() {
-        throw new UnsupportedOperationException("onCleared not yet implemented");
-    }
-
-    @Override
-    public void onSettled() {
-        throw new UnsupportedOperationException("onSettled not yet implemented");
-    }
 }

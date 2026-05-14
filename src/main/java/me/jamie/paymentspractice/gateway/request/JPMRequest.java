@@ -1,6 +1,6 @@
 package me.jamie.paymentspractice.gateway.request;
 
-public record JPMAuthoriseRequest(
+public record JPMRequest(
         String captureMethod,
         int amount,
         String currency,
