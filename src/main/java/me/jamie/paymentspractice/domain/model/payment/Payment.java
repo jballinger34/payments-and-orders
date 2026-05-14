@@ -8,6 +8,9 @@ public class Payment {
     private final double amount;
     private final PaymentMethod paymentMethod;
 
+    //provider reference is the reference that the provider api returns to us
+    private String providerReference;
+
     private PaymentStatus status;
     private PaymentFailureReason failureReason;
 
@@ -19,21 +22,25 @@ public class Payment {
         this.status = PaymentStatus.PENDING;
     }
     // deserialize
-    public static Payment fromPersistence(String id, double amount, PaymentMethod method, PaymentStatus status, PaymentFailureReason reason){
+    public static Payment fromPersistence(String id, double amount, PaymentMethod method, String providerReference, PaymentStatus status, PaymentFailureReason reason){
         Payment payment = new Payment(id,amount,method);
+        payment.providerReference = providerReference;
+
         payment.status = status;
         payment.failureReason = reason;
         return payment;
     }
     public static Payment fromPersistence(PaymentEntity record){
-        return fromPersistence(record.getId(), record.getAmount(), record.getPaymentMethod(), record.getStatus(), record.getFailureReason());
+        return fromPersistence(record.getId(), record.getAmount(), record.getPaymentMethod(), record.getProviderReference(),record.getStatus(), record.getFailureReason());
     }
 
 
-
-    public void authorize(){
+    public void authorize(String providerReference){
         if(status != PaymentStatus.PENDING){
             throw new IllegalStateException("Only PENDING payments can be authorized");
+        }
+        if(providerReference != null) {
+            this.providerReference = providerReference;
         }
         this.status = PaymentStatus.AUTHORIZED;
     }
@@ -65,6 +72,10 @@ public class Payment {
 
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;
+    }
+
+    public String getProviderReference() {
+        return providerReference;
     }
 
     public PaymentFailureReason getFailureReason() {

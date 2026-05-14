@@ -16,27 +16,17 @@ public class FakePaymentGateway implements PaymentGateway {
     public PaymentResponse authorize(Payment payment) {
         boolean success = random.nextBoolean();
         if(success){
-            return new PaymentResponse(true, null);
+            return new PaymentResponse(true, null, "FAKE_PROVIDER_REFERENCE");
         } else {
             //first 4 reasons are to do with auth
             int randomReason = random.nextInt(4);
-            return new PaymentResponse(false, PaymentFailureReason.values()[randomReason]);
+            return new PaymentResponse(false, PaymentFailureReason.values()[randomReason], "FAKE_PROVIDER_REFERENCE");
         }
     }
 
     @Override
     public PaymentResponse capture(Payment payment) {
-        return new PaymentResponse(true, null);
+        return new PaymentResponse(true, null, "FAKE_PROVIDER_REFERENCE");
     }
 
-
-    @Override
-    public void onCleared() {
-        throw new UnsupportedOperationException("onCleared not yet implemented");
-    }
-
-    @Override
-    public void onSettled() {
-        throw new UnsupportedOperationException("onSettled not yet implemented");
-    }
 }

@@ -24,7 +24,7 @@ public class PaymentServiceStub extends PaymentService {
 
     @Override
     public void authorizePayment(Payment payment) {
-        payment.authorize();
+        payment.authorize(null);
     }
 
     @Override
