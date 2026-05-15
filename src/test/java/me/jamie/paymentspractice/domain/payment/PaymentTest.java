@@ -46,10 +46,10 @@ public class PaymentTest {
         Payment payment = Payment.fromPersistence("1", 100, PaymentMethod.CARD,"initial"
                 ,PaymentStatus.AUTHORIZED, null);
 
-        payment.capture();
+        payment.capture("new");
 
         assertEquals(PaymentStatus.CAPTURED, payment.getStatus());
-        assertEquals("initial", payment.getProviderReference());
+        assertEquals("new", payment.getProviderReference());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class PaymentTest {
         Payment payment = Payment.fromPersistence("1", 100, PaymentMethod.CARD,null
                 ,PaymentStatus.PENDING, null);
 
-        assertThrows(IllegalStateException.class, payment::capture);
+        assertThrows(IllegalStateException.class, () -> payment.capture("any"));
 
         assertEquals(PaymentStatus.PENDING, payment.getStatus());
     }

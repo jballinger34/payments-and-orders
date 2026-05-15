@@ -29,7 +29,7 @@ public class PaymentServiceStub extends PaymentService {
 
     @Override
     public void capturePayment(Payment payment) {
-        payment.capture();
+        payment.capture(null);
     }
 
     @Override

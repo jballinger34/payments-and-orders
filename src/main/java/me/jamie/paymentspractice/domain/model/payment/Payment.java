@@ -44,9 +44,12 @@ public class Payment {
         }
         this.status = PaymentStatus.AUTHORIZED;
     }
-    public void capture(){
+    public void capture(String providerReference){
         if(status != PaymentStatus.AUTHORIZED){
             throw new IllegalStateException("Can only capture an AUTHORISED payment");
+        }
+        if(providerReference != null) {
+            this.providerReference = providerReference;
         }
         this.status = PaymentStatus.CAPTURED;
     }

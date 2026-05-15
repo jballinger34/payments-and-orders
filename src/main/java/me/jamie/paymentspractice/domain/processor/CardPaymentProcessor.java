@@ -36,7 +36,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
     public Payment capture(Payment payment) {
         PaymentResponse captureResponse = gateway.capture(payment);
         if(captureResponse.isSuccessful()){
-            payment.capture();
+            payment.capture(captureResponse.getProviderReference());
         } else {
             payment.fail(captureResponse.getFailureReason());
         }

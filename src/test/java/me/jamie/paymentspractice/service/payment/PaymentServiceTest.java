@@ -62,9 +62,6 @@ public class PaymentServiceTest {
     //  saving the result
     //  logging correctly
 
-    // TODO unit test processor, gateway and payment domain object
-    //  to ensure that our actual logic is correct
-
 
     @Test
     void testAuthSuccessFlow() throws Exception {
