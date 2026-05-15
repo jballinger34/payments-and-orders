@@ -22,8 +22,11 @@ public class JPMAuthService {
     private String accessToken;
     private Instant expiryTime;
 
+    @Value("${jpm.auth-url}")
+    private String url;
+
     public JPMAuthService(){
-        this.client = RestClient.builder().baseUrl("https://id.payments.jpmorgan.com").build();
+        this.client = RestClient.builder().baseUrl(url).build();
     }
     public String getAccessToken() {
 
