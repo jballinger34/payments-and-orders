@@ -1,6 +1,6 @@
-package me.jamie.paymentspractice.gateway;
+package me.jamie.paymentspractice.gateway.jpm;
 
-import me.jamie.paymentspractice.gateway.response.JPMTokenResponse;
+import me.jamie.paymentspractice.gateway.jpm.response.JPMTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;

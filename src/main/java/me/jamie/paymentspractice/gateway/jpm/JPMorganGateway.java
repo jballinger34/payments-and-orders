@@ -1,35 +1,24 @@
-package me.jamie.paymentspractice.gateway;
+package me.jamie.paymentspractice.gateway.jpm;
 
-import me.jamie.paymentspractice.gateway.request.JPMRequest;
-import me.jamie.paymentspractice.gateway.response.JPMAuthoriseResponse;
+import me.jamie.paymentspractice.gateway.jpm.request.JPMRequest;
+import me.jamie.paymentspractice.gateway.jpm.response.JPMAuthoriseResponse;
 import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.domain.model.payment.PaymentFailureReason;
 import me.jamie.paymentspractice.domain.model.payment.PaymentResponse;
-import me.jamie.paymentspractice.gateway.response.JPMCaptureResponse;
+import me.jamie.paymentspractice.gateway.jpm.response.JPMCaptureResponse;
+import me.jamie.paymentspractice.gateway.PaymentGateway;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-
-import java.util.UUID;
 
 @Primary
 @Component
 public class JPMorganGateway implements PaymentGateway {
 
-    private final RestClient client;
-    //where we get a JPM API key from to auth/capture payments with them
-    private final JPMAuthService authService;
+    private final JPMHttpClient client;
 
 
-    public JPMorganGateway(JPMAuthService authService){
-        this.authService = authService;
-
-        this.client = RestClient.builder()
-                .baseUrl("https://api-mock.payments.jpmorgan.com/api/v2")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
+    public JPMorganGateway(JPMHttpClient client){
+        this.client = client;
     }
 
 
@@ -37,13 +26,7 @@ public class JPMorganGateway implements PaymentGateway {
     public PaymentResponse authorize(Payment payment) {
         JPMRequest request = RequestFactory.buildAuthRequest(payment);
         try{
-            JPMAuthoriseResponse response = client.post().uri("/payments")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + authService.getAccessToken())
-                    .header("merchant-id", "998482157630")
-                    .header("request-id", UUID.randomUUID().toString())
-                    .body(request)
-                    .retrieve()
-                    .body(JPMAuthoriseResponse.class);
+            JPMAuthoriseResponse response = client.sendAuthorizeRequest(request);
 
             if("SUCCESS".equals(response.responseStatus())){
                 return new PaymentResponse(true,null, response.transactionId());
@@ -62,13 +45,7 @@ public class JPMorganGateway implements PaymentGateway {
     public PaymentResponse capture(Payment payment) {
         JPMRequest request = RequestFactory.buildCaptureRequest(payment);
         try{
-            JPMCaptureResponse response = client.post().uri("/payments/"+payment.getProviderReference()+"/captures")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + authService.getAccessToken())
-                    .header("merchant-id", "998482157630")
-                    .header("request-id", UUID.randomUUID().toString())
-                    .body(request)
-                    .retrieve()
-                    .body(JPMCaptureResponse.class);
+            JPMCaptureResponse response = client.sendCaptureRequest(payment.getProviderReference(), request);
 
             if("SUCCESS".equals(response.responseStatus())){
                 return new PaymentResponse(true,null, response.transactionId());

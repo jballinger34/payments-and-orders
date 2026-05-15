@@ -1,4 +1,4 @@
-package me.jamie.paymentspractice.gateway.request;
+package me.jamie.paymentspractice.gateway.jpm.request;
 
 public record JPMRequest(
         String captureMethod,
