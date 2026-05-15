@@ -22,6 +22,35 @@ import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
+    /*
+     TODO the gateway doesnt check if the payment is in correct state.
+     imagine this:
+            i have a pending payment (needs auth)
+            i try call gateway.auth and it fails,
+            but i don't realise so i call gateway.capture.
+            jpm realises this payment isnt authed so it auths it then captures it and returns a success response
+            my paymentprocessor tries to update the state and fails (because on my system its still pending).
+            in jpm system that payment is authed+captured. in mine its failed.
+     need to add relevant checks in the correct places.
+
+     flow looks like:
+     orderservice place order
+     payment service create payment
+     payment processor authorise
+     gateway authorise returns PaymentResponse
+     payment processor calls payment auth/fail based on response
+     payment validates state and mutates if valid
+
+     currently we check state in orderservice (reserve stock and capture calls)
+     and in payment class
+
+     the checks in orderservice should be good for now
+     as thats the only way paymentservice and payment gateway authorise/capture get called
+     but in the future (if we let manual capture happen)
+
+     we need to check for state BEFORE we call the gateway methods
+     */
+
 
     private final PaymentDao dao;
     private final AuditService auditService;
