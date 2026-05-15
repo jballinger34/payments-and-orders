@@ -59,22 +59,13 @@ public class JPMorganGateway implements PaymentGateway {
     }
 
     private PaymentFailureReason mapReason(String responseCode){
-        switch(responseCode){
-            case "INSUFFICIENT_FUNDS":
-                return PaymentFailureReason.INSUFFICIENT_FUNDS;
-            case "CARD_EXPIRED":
-                return PaymentFailureReason.EXPIRED_CARD;
-            case "TIMEOUT":
-            case "ISSUER_TIMEOUT":
-            case "PAYMENT_REQUEST_EXPIRED":
-                return PaymentFailureReason.TIMEOUT;
-            case "DECLINED_INVALID_CVV":
-            case "DECLINED_CVV":
-            case "DECLINED_AVS_CVV":
-                return PaymentFailureReason.INCORRECT_CVV;
-            default:
-                return PaymentFailureReason.PROCESSOR_ERROR;
-        }
+        return switch (responseCode) {
+            case "INSUFFICIENT_FUNDS" -> PaymentFailureReason.INSUFFICIENT_FUNDS;
+            case "CARD_EXPIRED" -> PaymentFailureReason.EXPIRED_CARD;
+            case "TIMEOUT", "ISSUER_TIMEOUT", "PAYMENT_REQUEST_EXPIRED" -> PaymentFailureReason.TIMEOUT;
+            case "DECLINED_INVALID_CVV", "DECLINED_CVV", "DECLINED_AVS_CVV" -> PaymentFailureReason.INCORRECT_CVV;
+            default -> PaymentFailureReason.PROCESSOR_ERROR;
+        };
     }
 
 
