@@ -44,13 +44,12 @@ public class JPMorganGateway implements PaymentGateway {
                     .body(request)
                     .retrieve()
                     .body(JPMAuthoriseResponse.class);
-            if(response == null){
-                return new PaymentResponse(false, PaymentFailureReason.PROCESSOR_ERROR,null);
-            } else if("SUCCESS".equals(response.responseStatus())){
+
+            if("SUCCESS".equals(response.responseStatus())){
                 return new PaymentResponse(true,null, response.transactionId());
             } else {
-                // TODO MAP THE JPM RESPONSE INTO A PaymentFailureReason
-                return new PaymentResponse(false, PaymentFailureReason.CARD_BLOCKED, response.transactionId());
+                PaymentFailureReason reason = mapReason(response.responseCode());
+                return new PaymentResponse(false, reason, response.transactionId());
             }
 
         } catch (Exception e){
@@ -61,8 +60,8 @@ public class JPMorganGateway implements PaymentGateway {
 
     @Override
     public PaymentResponse capture(Payment payment) {
+        JPMRequest request = RequestFactory.buildCaptureRequest(payment);
         try{
-            JPMRequest request = RequestFactory.buildCaptureRequest(payment);
             JPMCaptureResponse response = client.post().uri("/payments/"+payment.getProviderReference()+"/captures")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + authService.getAccessToken())
                     .header("merchant-id", "998482157630")
@@ -70,18 +69,37 @@ public class JPMorganGateway implements PaymentGateway {
                     .body(request)
                     .retrieve()
                     .body(JPMCaptureResponse.class);
-            if(response == null){
-                return new PaymentResponse(false, PaymentFailureReason.PROCESSOR_ERROR, payment.getProviderReference());
-            } else if("SUCCESS".equals(response.responseStatus())){
+
+            if("SUCCESS".equals(response.responseStatus())){
                 return new PaymentResponse(true,null, response.transactionId());
             } else {
-                // TODO MAP THE JPM RESPONSE INTO A PaymentFailureReason
-                return new PaymentResponse(false, PaymentFailureReason.FRAUD_SUSPECTED, response.transactionId());
+                PaymentFailureReason reason = mapReason(response.responseCode());
+                return new PaymentResponse(false, reason, response.transactionId());
             }
         } catch (Exception e){
             return new PaymentResponse(false, PaymentFailureReason.PROCESSOR_ERROR, payment.getProviderReference());
         }
     }
+
+    private PaymentFailureReason mapReason(String responseCode){
+        switch(responseCode){
+            case "INSUFFICIENT_FUNDS":
+                return PaymentFailureReason.INSUFFICIENT_FUNDS;
+            case "CARD_EXPIRED":
+                return PaymentFailureReason.EXPIRED_CARD;
+            case "TIMEOUT":
+            case "ISSUER_TIMEOUT":
+            case "PAYMENT_REQUEST_EXPIRED":
+                return PaymentFailureReason.TIMEOUT;
+            case "DECLINED_INVALID_CVV":
+            case "DECLINED_CVV":
+            case "DECLINED_AVS_CVV":
+                return PaymentFailureReason.INCORRECT_CVV;
+            default:
+                return PaymentFailureReason.PROCESSOR_ERROR;
+        }
+    }
+
 
     //static inner class to help build the requests to auth/capture
     //keeps general buildRequest function hidden, so this factory
