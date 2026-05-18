@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -168,5 +169,22 @@ public class PaymentServiceTest {
     }
 
 
+    @Test
+    void testAuthNullPayment() {
+        assertThrows(IllegalArgumentException.class, () -> service.authorizePayment((Payment) null));
+    }
+
+    @Test
+    void testProcessorNotSupportingMethod() {
+        Payment payment = mock(Payment.class);
+        when(payment.getPaymentMethod()).thenReturn(PaymentMethod.CARD);
+
+        PaymentProcessor otherProcessor = mock(PaymentProcessor.class);
+        when(otherProcessor.supports()).thenReturn(PaymentMethod.BANK_TRANSFER);
+
+        PaymentService service = new PaymentService(dao, auditService, List.of(otherProcessor));
+
+        assertThrows(IllegalArgumentException.class, () -> service.authorizePayment(payment));
+    }
 
 }
