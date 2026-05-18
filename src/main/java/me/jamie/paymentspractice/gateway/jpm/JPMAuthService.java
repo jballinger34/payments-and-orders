@@ -22,10 +22,9 @@ public class JPMAuthService {
     private String accessToken;
     private Instant expiryTime;
 
-    @Value("${jpm.auth-url}")
-    private String url;
 
-    public JPMAuthService(){
+
+    public JPMAuthService(@Value("${jpm.auth-url}") String url){
         this.client = RestClient.builder().baseUrl(url).build();
     }
     public String getAccessToken() {

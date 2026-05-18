@@ -21,10 +21,7 @@ public class JPMHttpClient {
     @Value("${jpm.merchant-id}")
     private String merchantId;
 
-    @Value("${jpm.base-url}")
-    private String url;
-
-    public JPMHttpClient(JPMAuthService authService) {
+    public JPMHttpClient(JPMAuthService authService, @Value("${jpm.base-url}") String url) {
 
         this.authService = authService;
 
