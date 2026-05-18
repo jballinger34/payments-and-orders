@@ -1,24 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <title>Browse</title>
 </head>
+
 <body>
 
 <h1>Products</h1>
 
-  <button onclick="toggleCart()">View Cart</button>
-  <button onclick="checkout()">Checkout</button>
+<button onclick="toggleCart()">Toggle Cart</button>
+<button onclick="checkout()">Checkout</button>
 
-  <div id="cart-panel" style="display:none; border:1px solid black; padding:10px; margin:10px 0;">
-    <h3>Your Cart</h3>
-    <div id="cart-items"></div>
-  </div>
+<div id="cart-panel"
+     style="display:none; border:1px solid black; padding:10px; margin:10px 0;">
 
+  <h3>Your Cart</h3>
 
-  <div id="product-list"></div>
+  <div id="cart-items"></div>
 
-  <script src="browse.js"></script>
+  <hr>
+
+  <h3 id="cart-total">Total: £0.00</h3>
+</div>
+
+<!-- PRODUCT LIST -->
+<div th:each="product : ${products}"
+     style="border:1px solid #ccc; padding:10px; margin:10px;">
+
+  <h3 th:text="${product.name}">Product Name</h3>
+
+  <p>Price: £<span th:text="${product.price}">0</span></p>
+
+  <p>Stock: <span th:text="${product.stock}">0</span></p>
+
+  <button th:attr="
+        data-id=${product.id},
+        data-name=${product.name},
+        data-price=${product.price}"
+          onclick="addToCart(this)">
+    Add to cart
+  </button>
+
+</div>
+
+<script src="/browse.js"></script>
 
 </body>
 </html>

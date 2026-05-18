@@ -1,95 +1,7 @@
 let cart = [];
-let productsCache = [];
-
-async function loadProducts() {
-    try {
-        const response = await fetch("/inventory");
-        const products = await response.json();
-
-        productsCache = products;
-
-        const container = document.getElementById("product-list");
-        container.innerHTML = "";
-
-        products.forEach(p => {
-            const div = document.createElement("div");
-
-            div.innerHTML = `
-                <h3>${p.name}</h3>
-                <p>Price: ${p.price}</p>
-                <p>Stock: ${p.stock}</p>
-                <button onclick="addToCart('${p.id}')">
-                    +
-                </button>
-            `;
-
-            container.appendChild(div);
-        });
-
-    } catch (err) {
-        console.error("Failed to load products", err);
-    }
-}
-
-function toggleCart() {
-    const panel = document.getElementById("cart-panel");
-
-    if (panel.style.display === "none") {
-        panel.style.display = "block";
-        renderCart();
-    } else {
-        panel.style.display = "none";
-    }
-}
-
-function renderCart() {
-    const container = document.getElementById("cart-items");
-    container.innerHTML = "";
-
-    if (cart.length === 0) {
-        container.innerHTML = "<p>Cart is empty</p>";
-        return;
-    }
-
-    cart.forEach(item => {
-        const div = document.createElement("div");
-
-        div.innerHTML = `
-            <p><b>${item.name}</b></p>
-            <p>Price: ${item.price}</p>
-            <p>Qty: ${item.quantity}</p>
-        `;
-
-        container.appendChild(div);
-    });
-}
-
-function addToCart(productId) {
-
-    const product = productsCache.find(p => p.id === productId);
-
-    if (!product) {
-        console.error("Product not found:", productId);
-        return;
-    }
-
-    const existing = cart.find(item => item.id === product.id);
-
-    if (existing) {
-        existing.quantity += 1;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: 1
-        });
-    }
-
-    console.log("Cart:", cart);
-}
 
 async function checkout() {
+
     if (cart.length === 0) {
         alert("Cart is empty");
         return;
@@ -108,10 +20,104 @@ async function checkout() {
         body: JSON.stringify(payload)
     });
 
+    if (!res.ok) {
+        const error = await res.json();
+        alert(error.error + "\n" + error.message);
+        return;
+    }
+
     const order = await res.json();
 
-    alert("Order placed: " + order.id);
+    let itemSummary = order.items.map(i =>
+        `${i.name} x${i.quantity} (£${i.price})`
+    ).join("\n");
+    alert(
+        "Order placed!\n\n" +
+        "Order ID: " + order.id + "\n\n" +
+        "Items:\n" + itemSummary + "\n\n" +
+        "Total: £" + order.total.toFixed(2) + "\n" +
+        "Status: " + order.status + "\n" +
+        "Payment ID: " + order.paymentId
+    );
+
+
     cart = [];
+    renderCart();
 }
 
-loadProducts();
+function addToCart(button) {
+
+    const id = button.dataset.id;
+    const name = button.dataset.name;
+    const price = Number(button.dataset.price);
+
+    const existing = cart.find(item => item.id === id);
+
+    if (existing) {
+        existing.quantity += 1;
+    } else {
+        cart.push({
+            id,
+            name,
+            price,
+            quantity: 1
+        });
+    }
+    renderCart();
+}
+
+function renderCart() {
+    const container = document.getElementById("cart-items");
+    container.innerHTML = "";
+
+    if (cart.length === 0) {
+        container.innerHTML = "<p>Cart is empty</p>";
+        updateTotal();
+        return;
+    }
+
+    cart.forEach(item => {
+
+        const itemTotal = item.price * item.quantity;
+
+        const div = document.createElement("div");
+        div.style.border = "1px solid #ddd";
+        div.style.margin = "5px";
+        div.style.padding = "5px";
+
+        div.innerHTML = `
+            <p><b>${item.name}</b></p>
+            <p>Qty: ${item.quantity}</p>
+            <p>Price: £${item.price.toFixed(2)}</p>
+            <p><b>Subtotal: £${itemTotal.toFixed(2)}</b></p>
+        `;
+
+        container.appendChild(div);
+    });
+
+    updateTotal();
+}
+
+function updateTotal() {
+
+    const total = cart.reduce((sum, item) => {
+        return sum + (item.price * item.quantity);
+    }, 0);
+
+    document.getElementById("cart-total").innerText =
+        `Total: £${total.toFixed(2)}`;
+}
+
+function toggleCart() {
+
+    const panel = document.getElementById("cart-panel");
+
+    const isHidden = panel.style.display === "none" || panel.style.display === "";
+
+    if (isHidden) {
+        panel.style.display = "block";
+        renderCart();
+    } else {
+        panel.style.display = "none";
+    }
+}
