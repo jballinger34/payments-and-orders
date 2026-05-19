@@ -9,20 +9,22 @@ public class ProductEntity {
 
     @Id
     private String id;
+    private String merchantId;
     private String name;
     private double cost;
     private int stock;
 
     public ProductEntity(){}
-    public ProductEntity(String id, String name, double cost, int stock) {
+    public ProductEntity(String id, String merchantId,String name, double cost, int stock) {
         this.id = id;
+        this.merchantId = merchantId;
         this.stock = stock;
         this.cost = cost;
         this.name = name;
     }
 
     public static ProductEntity from(Product product){
-        return new ProductEntity(product.getId(), product.getName(), product.getCost(), product.getStock());
+        return new ProductEntity(product.getId(), product.getMerchantId(), product.getName(), product.getCost(), product.getStock());
     }
 
     public String getId() {
@@ -55,5 +57,9 @@ public class ProductEntity {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    public String getMerchantId() {
+        return merchantId;
     }
 }

@@ -9,6 +9,7 @@ import java.util.UUID;
 public class Order {
 
     private final String id;
+    private final String merchantId;
 
 
     private final List<LineItem> items;
@@ -16,22 +17,20 @@ public class Order {
     private Payment payment;
     private OrderStatus status;
 
-    public Order(List<LineItem> items){
-        this.id = UUID.randomUUID().toString();
-        this.items = items;
-
-        this.status = OrderStatus.CREATED;
+    public Order(String merchantId, List<LineItem> items){
+        this(String.valueOf(UUID.randomUUID()), merchantId, null, items, OrderStatus.CREATED);
     }
-    private Order(String id, List<LineItem> items){
+
+    public Order(String id, String merchantId, Payment payment, List<LineItem> items, OrderStatus status) {
         this.id = id;
+        this.merchantId = merchantId;
+        this.payment = payment;
         this.items = items;
+        this.status = status;
     }
 
-    public static Order fromPersistence(String id, List<LineItem> items, Payment payment, OrderStatus status) {
-        Order order = new Order(id, items);
-        order.payment = payment;
-        order.status = status;
-        return order;
+    public static Order fromPersistence(String id, String merchantId, Payment payment, List<LineItem> items, OrderStatus status) {
+        return new Order(id, merchantId, payment, items, status);
     }
 
     public void setPayment(Payment payment) {
@@ -105,5 +104,7 @@ public class Order {
         return items;
     }
 
-
+    public String getMerchantId() {
+        return merchantId;
+    }
 }

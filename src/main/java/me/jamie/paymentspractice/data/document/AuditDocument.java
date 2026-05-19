@@ -19,6 +19,9 @@ public class AuditDocument {
     @Id
     private String id;
 
+    @Field(type = FieldType.Keyword)
+    private String merchantId;
+
     @Field(type = FieldType.Date)
     private LocalDateTime timestamp;
 

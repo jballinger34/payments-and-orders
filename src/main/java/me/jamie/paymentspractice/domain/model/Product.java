@@ -5,19 +5,21 @@ import me.jamie.paymentspractice.data.entity.ProductEntity;
 public class Product {
 
     private final String id;
+    private final String merchantId;
     private String name;
     private double cost;
     private int stock;
     
-    public Product(String id, String name, double cost, int stock){
+    public Product(String id, String merchantId, String name, double cost, int stock){
         this.id = id;
+        this.merchantId = merchantId;
         this.name = name;
         this.cost = cost;
         this.stock = stock;
     }
 
     public static Product fromPersistence(ProductEntity entity) {
-        return new Product(entity.getId(), entity.getName(), entity.getCost(), entity.getStock());
+        return new Product(entity.getId(), entity.getMerchantId(), entity.getName(), entity.getCost(), entity.getStock());
     }
 
     public String getId() {
@@ -34,6 +36,10 @@ public class Product {
 
     public int getStock() {
         return stock;
+    }
+
+    public String getMerchantId() {
+        return merchantId;
     }
 
     public void setCost(double cost) {
