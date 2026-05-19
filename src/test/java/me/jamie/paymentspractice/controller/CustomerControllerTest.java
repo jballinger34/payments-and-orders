@@ -3,10 +3,8 @@ package me.jamie.paymentspractice.controller;
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.order.OrderStatus;
 import me.jamie.paymentspractice.domain.model.payment.Payment;
-import me.jamie.paymentspractice.exception.InsufficientStockException;
-import me.jamie.paymentspractice.exception.PersistenceException;
-import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.OrderService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,12 +13,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -33,18 +29,17 @@ public class CustomerControllerTest {
     @MockitoBean
     OrderService orderService;
 
-
     @Test
-    public void testCheckout() throws Exception {
-        Order mockOrder = Order.fromPersistence("TEST_ORDER", new ArrayList<>(), mock(Payment.class), OrderStatus.CREATED);
-        when(orderService.placeOrder(anyList(), any())).thenReturn(mockOrder);
+    public void testCheckoutSuccessFlow() throws Exception {
+        Order mockOrder = Order.fromPersistence("TEST_ORDER", "TEST_MERCHANT", mock(Payment.class), new ArrayList<>(), OrderStatus.CREATED);
+        when(orderService.placeOrder(any() ,anyList(), any())).thenReturn(mockOrder);
 
-        mockMvc.perform(post("/checkout")
+        mockMvc.perform(post("/TEST_MERCHANT/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[]"))
                 .andExpect(status().isOk());
 
-        verify(orderService).placeOrder(anyList(), any());
+        verify(orderService).placeOrder(any(), anyList(), any());
         verify(orderService).authorizePayment(mockOrder);
         verify(orderService).reserveStock(mockOrder);
         verify(orderService).capturePayment(mockOrder);
@@ -52,7 +47,7 @@ public class CustomerControllerTest {
     @Test
     public void testCheckoutInvalidJson() throws Exception {
 
-        mockMvc.perform(post("/checkout")
+        mockMvc.perform(post("/TEST_MERCHANT/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{invalid json"))
                 .andExpect(status().isBadRequest());
@@ -61,7 +56,7 @@ public class CustomerControllerTest {
     @Test
     public void testCheckoutMissingBody() throws Exception {
 
-        mockMvc.perform(post("/checkout")
+        mockMvc.perform(post("/TEST_MERCHANT/checkout")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -74,15 +69,16 @@ public class CustomerControllerTest {
 
         Order order = Order.fromPersistence(
                 "ORDER_1",
-                new ArrayList<>(),
+                "TEST_MERCHANT",
                 payment,
+                new ArrayList<>(),
                 OrderStatus.CREATED
         );
 
-        when(orderService.placeOrder(anyList(), any()))
+        when(orderService.placeOrder(any(), anyList(), any()))
                 .thenReturn(order);
 
-        mockMvc.perform(post("/checkout")
+        mockMvc.perform(post("/TEST_MERCHANT/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[]"))
                 .andExpect(status().isOk())

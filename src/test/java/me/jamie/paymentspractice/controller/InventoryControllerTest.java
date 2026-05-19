@@ -34,14 +34,15 @@ public class InventoryControllerTest {
     void testGetProductReturnsProductDto() throws Exception {
         Product product = new Product(
                 "PROD_1",
+                "TEST_MERCHANT",
                 "Keyboard",
                 49.99,
                 10
         );
 
-        when(service.getProduct("PROD_1")).thenReturn(product);
+        when(service.getProduct("TEST_MERCHANT","PROD_1")).thenReturn(product);
 
-        mockMvc.perform(get("/inventory/PROD_1"))
+        mockMvc.perform(get("/TEST_MERCHANT/inventory/PROD_1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(product.getId()))
@@ -55,14 +56,15 @@ public class InventoryControllerTest {
 
         Product product = new Product(
                 "PROD_2",
+                "TEST_MERCHANT",
                 "Mouse",
                 19.99,
                 5
         );
 
-        when(service.createProduct(any(), anyDouble(), anyInt())).thenReturn(product);
+        when(service.createProduct(any(),any(), anyDouble(), anyInt())).thenReturn(product);
 
-        mockMvc.perform(post("/inventory")
+        mockMvc.perform(post("/TEST_MERCHANT/inventory")
                         .param("name", "Mouse")
                         .param("cost", "19.99")
                         .param("stock", "5"))
@@ -77,14 +79,15 @@ public class InventoryControllerTest {
     void testRestockProductReturnsUpdatedProduct() throws Exception {
         Product updated = new Product(
                 "PROD_1",
+                "TEST_MERCHANT",
                 "Keyboard",
                 49.99,
                 20
         );
 
-        when(service.restockProduct("PROD_1", 10)).thenReturn(updated);
+        when(service.restockProduct("TEST_MERCHANT","PROD_1", 10)).thenReturn(updated);
 
-        mockMvc.perform(post("/inventory/PROD_1/restock")
+        mockMvc.perform(post("/TEST_MERCHANT/inventory/PROD_1/restock")
                         .param("amount", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(updated.getId()))
@@ -97,15 +100,16 @@ public class InventoryControllerTest {
 
         Product updated = new Product(
                 "PROD_1",
+                "TEST_MERCHANT",
                 "Keyboard",
                 99.99,
                 10
         );
 
-        when(service.setPrice("PROD_1", 99.99))
+        when(service.setPrice("TEST_MERCHANT","PROD_1", 99.99))
                 .thenReturn(updated);
 
-        mockMvc.perform(put("/inventory/PROD_1/price")
+        mockMvc.perform(put("/TEST_MERCHANT/inventory/PROD_1/price")
                         .param("price", "99.99"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(updated.getId()))
@@ -119,14 +123,15 @@ public class InventoryControllerTest {
 
         Product updated = new Product(
                 "PROD_1",
+                "TEST_MERCHANT",
                 "Keyboard",
                 49.99,
                 50
         );
 
-        when(service.setStock("PROD_1", 50)).thenReturn(updated);
+        when(service.setStock("TEST_MERCHANT","PROD_1", 50)).thenReturn(updated);
 
-        mockMvc.perform(put("/inventory/PROD_1/stock")
+        mockMvc.perform(put("/TEST_MERCHANT/inventory/PROD_1/stock")
                         .param("amount", "50"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(updated.getId()))
@@ -140,23 +145,24 @@ public class InventoryControllerTest {
 
         Product updated = new Product(
                 "PROD_1",
+                "TEST_MERCHANT",
                 "Mechanical Keyboard",
                 49.99,
                 10
         );
 
-        when(service.setName("PROD_1", "Mechanical Keyboard")).thenReturn(updated);
+        when(service.setName("TEST_MERCHANT","PROD_1", "Mechanical Keyboard")).thenReturn(updated);
 
-        mockMvc.perform(put("/inventory/PROD_1/name")
+        mockMvc.perform(put("/TEST_MERCHANT/inventory/PROD_1/name")
                         .param("name", "Mechanical Keyboard"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(updated.getName()));
     }
     @Test
     void testDeleteProductReturnsEmptyBody() throws Exception {
-        doNothing().when(service).deleteProduct("PROD_1");
+        doNothing().when(service).deleteProduct("TEST_MERCHANT","PROD_1");
 
-        mockMvc.perform(delete("/inventory/PROD_1")
+        mockMvc.perform(delete("/TEST_MERCHANT/inventory/PROD_1")
                         .param("name", "Mechanical Keyboard"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
@@ -165,7 +171,7 @@ public class InventoryControllerTest {
     @Test
     void testInvalidJsonReturns400() throws Exception {
 
-        mockMvc.perform(post("/inventory")
+        mockMvc.perform(post("/TEST_MERCHANT/inventory")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{ invalid json }"))
                 .andExpect(status().isBadRequest());
@@ -173,7 +179,7 @@ public class InventoryControllerTest {
     @Test
     void testMissingParamReturns400() throws Exception {
 
-        mockMvc.perform(post("/inventory/PROD_1/restock"))
+        mockMvc.perform(post("/TEST_MERCHANT/inventory/PROD_1/restock"))
                 .andExpect(status().isBadRequest());
     }
 

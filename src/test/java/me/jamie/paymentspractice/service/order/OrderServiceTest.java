@@ -1,10 +1,13 @@
 package me.jamie.paymentspractice.service.order;
 
+import me.jamie.paymentspractice.data.entity.ProductEntity;
 import me.jamie.paymentspractice.data.request.CheckoutItemRequest;
-import me.jamie.paymentspractice.stubs.OrderDaoStubImpl;
 import me.jamie.paymentspractice.dao.order.OrderDao;
+import me.jamie.paymentspractice.domain.model.LineItem;
+import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.domain.model.order.Order;
 import me.jamie.paymentspractice.domain.model.order.OrderStatus;
+import me.jamie.paymentspractice.domain.model.payment.Payment;
 import me.jamie.paymentspractice.domain.model.payment.PaymentMethod;
 import me.jamie.paymentspractice.domain.model.payment.PaymentStatus;
 import me.jamie.paymentspractice.exception.InsufficientStockException;
@@ -12,112 +15,138 @@ import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.service.InventoryService;
 import me.jamie.paymentspractice.service.OrderService;
 import me.jamie.paymentspractice.service.PaymentService;
+import me.jamie.paymentspractice.service.audit.AuditAction;
 import me.jamie.paymentspractice.service.audit.AuditService;
+import me.jamie.paymentspractice.service.audit.AuditType;
+import org.antlr.v4.runtime.atn.SemanticContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import me.jamie.paymentspractice.stubs.AuditServiceStub;
-import me.jamie.paymentspractice.stubs.InventoryServiceStub;
-import me.jamie.paymentspractice.stubs.PaymentServiceStub;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
-    OrderService orderService;
+    @Mock
     InventoryService inventoryService;
-    private static List<CheckoutItemRequest> ITEM_10_IN_STOCK;
-    private static List<CheckoutItemRequest> ITEM_NONE_IN_STOCK;
+    @Mock
+    OrderDao orderDao;
+    @Mock
+    PaymentService paymentService;
+    @Mock
+    AuditService auditService;
+
+    @InjectMocks
+    OrderService orderService;
 
 
-    @BeforeEach
-    void setUp() throws PersistenceException {
-
-        OrderDao orderDao = new OrderDaoStubImpl();
-
-        PaymentService paymentService = new PaymentServiceStub();
-        inventoryService = new InventoryServiceStub();
-        AuditService auditService = new AuditServiceStub();
-
-        orderService = new OrderService(orderDao,paymentService,inventoryService,auditService);
-
-        ITEM_10_IN_STOCK = List.of(new CheckoutItemRequest("PRODUCT_1", 1));
-        ITEM_NONE_IN_STOCK = List.of(new CheckoutItemRequest("PRODUCT_2", 1));
-    }
 
     //getAllOrders()
     @Test
-    void getAllOrders_emptyInitially() throws PersistenceException {
-        List<Order> orders = orderService.getAllOrders();
+    void testGetAllOrdersEmpty() throws PersistenceException {
+        when(orderDao.findByMerchantId("TEST_MERCHANT")).thenReturn(new ArrayList<>());
+        List<Order> orders = orderService.getAllOrders("TEST_MERCHANT");
+
         assertNotNull(orders);
         assertEquals(0, orders.size());
     }
 
-    @Test
-    void getAllOrders_afterPlacingOrder() throws PersistenceException {
-
-        orderService.placeOrder(ITEM_10_IN_STOCK, PaymentMethod.CARD);
-
-        List<Order> orders = orderService.getAllOrders();
-        assertEquals(1, orders.size());
-    }
-
     //placeOrder()
     @Test
-    void placeOrder_success() throws Exception {
-        Order order = orderService.placeOrder(ITEM_10_IN_STOCK, PaymentMethod.CARD);
+    void testPlaceOrderFlow() throws Exception {
+        Product product = new Product("PRODUCT_1","TEST_MERCHANT","PRODUCT_1",1.0,10);
+        Payment payment = mock(Payment.class);
+        when(inventoryService.getProduct("TEST_MERCHANT","PRODUCT_1")).thenReturn(product);
+        when(inventoryService.isInStock("TEST_MERCHANT", "PRODUCT_1", 3)).thenReturn(true);
+
+        when(paymentService.createPayment(anyDouble(),any())).thenReturn(payment);
+
+        Order order = orderService.placeOrder("TEST_MERCHANT", List.of(new CheckoutItemRequest("PRODUCT_1", 3)), PaymentMethod.CARD);
+
+
+        verify(paymentService).createPayment(anyDouble(),any());
+        verify(orderDao).save(any());
+        verify(auditService).logSuccess(AuditType.ORDER, AuditAction.CREATE, order.getId());
 
         assertNotNull(order);
-        assertNotNull(order.getPayment());
-        assertEquals(1, orderService.getAllOrders().size());
-        assertEquals(OrderStatus.CREATED, order.getStatus());
-        assertEquals(PaymentStatus.PENDING, order.getPayment().getStatus());
+        assertEquals(payment, order.getPayment());
     }
 
     @Test
-    void placeOrder_insufficientStock() {
-        assertThrows(InsufficientStockException.class, () -> orderService.placeOrder(ITEM_NONE_IN_STOCK, PaymentMethod.CARD));
+    void testPlaceOrderInsufficientStock() throws Exception {
+        Product product = new Product("PRODUCT_1","TEST_MERCHANT","PRODUCT_1",1.0,10);
+        when(inventoryService.getProduct("TEST_MERCHANT", "PRODUCT_1")).thenReturn(product);
+        assertThrows(InsufficientStockException.class,
+                () -> orderService.placeOrder("TEST_MERCHANT", List.of(new CheckoutItemRequest("PRODUCT_1", 100)), PaymentMethod.CARD));
     }
 
-    //authorizePayment()
     @Test
-    void authorizePayment_success() throws Exception {
-        Order order = orderService.placeOrder(ITEM_10_IN_STOCK, PaymentMethod.CARD);
+    void testAuthPaymentSuccessFlow() throws Exception {
+        Payment payment = mock(Payment.class);
+        Order order = Order.fromPersistence("ORDER_1", "TEST_MERCHANT", payment, List.of(), OrderStatus.CREATED);
+
+        when(payment.getStatus()).thenReturn(PaymentStatus.AUTHORIZED);
 
         orderService.authorizePayment(order);
 
         assertEquals(OrderStatus.READY, order.getStatus());
-        assertEquals(PaymentStatus.AUTHORIZED, order.getPayment().getStatus());
+        verify(orderDao).save(any());
+        verify(auditService).logSuccess(AuditType.ORDER, AuditAction.AUTH, order.getId());
     }
 
-    //reserveStock()
     @Test
-    void reserveStock_success() throws Exception {
-        int stockAmt = inventoryService.getStockQty("PRODUCT_1");
-        Order order = orderService.placeOrder(ITEM_10_IN_STOCK, PaymentMethod.CARD);
+    void testReserveStockFlow() throws Exception {
+        Payment payment = mock(Payment.class);
+        LineItem item = new LineItem(new Product("PRODUCT_1", "TEST_MERCHANT","PRODUCT_1", 1.0,10), 3);
+        Order order = Order.fromPersistence("ORDER_1", "TEST_MERCHANT", payment, List.of(item), OrderStatus.READY);
 
-        orderService.authorizePayment(order);
         orderService.reserveStock(order);
 
-        assertEquals(OrderStatus.RESERVED, order.getStatus());
-        assertEquals(PaymentStatus.AUTHORIZED, order.getPayment().getStatus());
+        verify(inventoryService).reduceStock("TEST_MERCHANT", "PRODUCT_1",3);
 
-        //initial stock amount - amount in order should equal amount now in inventory
-        assertEquals(stockAmt - 1, inventoryService.getStockQty("PRODUCT_1"));
+        verify(orderDao).save(any());
+        verify(auditService).logSuccess(AuditType.ORDER, AuditAction.REDUCE_STOCK, order.getId());
+    }
+    @Test
+    void testReserveWithInsufficientStock() throws Exception {
+        Payment payment = mock(Payment.class);
+        LineItem item = new LineItem(new Product("PRODUCT_1", "TEST_MERCHANT","PRODUCT_1", 1.0,10), 30);
+        Order order = Order.fromPersistence("ORDER_1", "TEST_MERCHANT", payment, List.of(item), OrderStatus.READY);
+
+        when(inventoryService.reduceStock(any(), any(), anyInt())).thenThrow(new InsufficientStockException("Simulating not enough stock"));
+
+        assertThrows(InsufficientStockException.class,() -> orderService.reserveStock(order)) ;
+
+        verify(inventoryService).reduceStock("TEST_MERCHANT", "PRODUCT_1",30);
+        verify(auditService).logFailure(eq(AuditType.ORDER), eq(AuditAction.REDUCE_STOCK), eq(order.getId()), anyString());
     }
 
     //capturePayment()
     @Test
-    void capturePayment_success() throws Exception {
-        Order order = orderService.placeOrder(ITEM_10_IN_STOCK, PaymentMethod.CARD);
+    void testCapturePaymentFlow() throws Exception {
+        /*
 
-        orderService.authorizePayment(order);
-        orderService.reserveStock(order);
+            verify(auditService).logSuccess(AuditType.ORDER, AuditAction.AUTH, order.getId());
+         */
+        Payment payment = mock(Payment.class);
+        Order order = Order.fromPersistence("ORDER_1", "TEST_MERCHANT", payment, List.of(), OrderStatus.RESERVED);
+
+        when(payment.getStatus()).thenReturn(PaymentStatus.CAPTURED);
+
         orderService.capturePayment(order);
 
         assertEquals(OrderStatus.PAID, order.getStatus());
+        verify(orderDao).save(any());
+        verify(auditService).logSuccess(any(), any(), any());
         assertEquals(PaymentStatus.CAPTURED, order.getPayment().getStatus());
     }
 

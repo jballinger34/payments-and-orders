@@ -1,11 +1,11 @@
 package me.jamie.paymentspractice.controller;
 
-import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.exception.GlobalExceptionHandler;
 import me.jamie.paymentspractice.exception.InsufficientStockException;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
 import me.jamie.paymentspractice.service.InventoryService;
+import me.jamie.paymentspractice.service.MerchantService;
 import me.jamie.paymentspractice.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,33 +32,37 @@ public class GlobalExceptionHandlerTest {
     private InventoryService inventoryService;
     @MockitoBean
     private OrderService orderService;
+    @MockitoBean
+    private MerchantService merchantService;
+
 
     @Test
     public void testPersistenceException() throws Exception {
-        when(inventoryService.getAllProducts()).thenThrow(new PersistenceException("Simulating issue with DB"));
-        mockMvc.perform(get("/inventory"))
+        when(inventoryService.getAllProducts("TEST_MERCHANT")).thenThrow(new PersistenceException("Simulating issue with DB"));
+        mockMvc.perform(get("/TEST_MERCHANT/inventory"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
     public void testNoStockException() throws Exception {
-        when(orderService.placeOrder(anyList(), any())).thenThrow(new InsufficientStockException("Simulating no stock"));
-        mockMvc.perform(post("/checkout")
+        when(orderService.placeOrder(eq("TEST_MERCHANT"), anyList(), any()))
+                .thenThrow(new InsufficientStockException("Simulating no stock"));
+        mockMvc.perform(post("/TEST_MERCHANT/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[]"))
                 .andExpect(status().isConflict());
     }
     @Test
     void testProductNotFoundException() throws Exception {
-        when(inventoryService.getProduct(any())).thenThrow(new ProductNotFoundException("Simulating product not found"));
-        mockMvc.perform(get("/inventory/NOT_FOUND_PRODUCT"))
+        when(inventoryService.getProduct("TEST_MERCHANT","NOT_FOUND_PRODUCT")).thenThrow(new ProductNotFoundException("Simulating product not found"));
+        mockMvc.perform(get("/TEST_MERCHANT/inventory/NOT_FOUND_PRODUCT"))
                 .andExpect(status().isNotFound());
     }
     @Test
     void testIllegalArgumentException() throws Exception {
-        when(inventoryService.restockProduct(any(), anyInt())).thenThrow(new IllegalArgumentException("Simulating illegal argument given"));
-        mockMvc.perform(post("/inventory/PROD_1/restock").param("amount", "-10"))
+        when(inventoryService.restockProduct("TEST_MERCHANT","PROD_1", -10)).thenThrow(new IllegalArgumentException("Simulating illegal argument given"));
+        mockMvc.perform(post("/TEST_MERCHANT/inventory/PROD_1/restock").param("amount", "-10"))
                 .andExpect(status().isBadRequest());
 
     }
@@ -67,7 +71,7 @@ public class GlobalExceptionHandlerTest {
 
         doThrow(new IllegalStateException("Simulating auth failure")).when(orderService).reserveStock(any());
 
-        mockMvc.perform(post("/checkout")
+        mockMvc.perform(post("/TEST_MERCHANT/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[]"))
                 .andExpect(status().isConflict());

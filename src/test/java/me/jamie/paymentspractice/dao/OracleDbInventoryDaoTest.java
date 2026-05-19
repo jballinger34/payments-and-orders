@@ -1,6 +1,7 @@
 package me.jamie.paymentspractice.dao;
 
 import me.jamie.paymentspractice.dao.inventory.OracleDbInventoryDao;
+import me.jamie.paymentspractice.data.entity.ProductEntity;
 import me.jamie.paymentspractice.domain.model.Product;
 import me.jamie.paymentspractice.exception.PersistenceException;
 import me.jamie.paymentspractice.exception.ProductNotFoundException;
@@ -33,13 +34,14 @@ public class OracleDbInventoryDaoTest {
 
         Product product = new Product(
                 "TEST_PRODUCT",
+                "TEST_MERCHANT",
                 "TEST_PRODUCT",
                 1.00,
                 10
         );
-        dao.put(product.getId(), product);
+        dao.save(ProductEntity.from(product));
 
-        Product found = dao.findById("TEST_PRODUCT");
+        Product found = Product.fromPersistence(dao.findByMerchantIdAndId("TEST_MERCHANT","TEST_PRODUCT"));
 
         assertNotNull(found);
         assertEquals(product.getId(), found.getId());
@@ -53,6 +55,7 @@ public class OracleDbInventoryDaoTest {
 
         Product product1 = new Product(
                 "TEST_PRODUCT_2",
+                "TEST_MERCHANT",
                 "TEST_PRODUCT_2",
                 5.00,
                 20
@@ -60,15 +63,16 @@ public class OracleDbInventoryDaoTest {
 
         Product product2 = new Product(
                 "TEST_PRODUCT_3",
+                "TEST_MERCHANT",
                 "TEST_PRODUCT_3",
                 4.00,
                 5
         );
 
-        dao.put(product1.getId(), product1);
-        dao.put(product2.getId(), product2);
+        dao.save(ProductEntity.from(product1));
+        dao.save(ProductEntity.from(product2));
 
-        List<Product> products = dao.findAll();
+        List<Product> products = dao.findByMerchantId("TEST_MERCHANT").stream().map(Product::fromPersistence).toList();
 
         assertNotNull(products);
 
@@ -83,12 +87,6 @@ public class OracleDbInventoryDaoTest {
 
     @Test
     void testGetNotFoundProduct() {
-        String productId = "DOES_NOT_EXIST";
-        assertThrows(ProductNotFoundException.class, () -> dao.findById(productId));
-    }
-    @Test
-    void testRemoveNotFoundProduct() {
-        String productId = "DOES_NOT_EXIST";
-        assertThrows(ProductNotFoundException.class, () -> dao.remove(productId));
+        assertThrows(ProductNotFoundException.class, () -> dao.findByMerchantIdAndId("TEST_MERCHANT","DOES_NOT_EXIST"));
     }
 }
