@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/inventory")
 public class InventoryController {
 
     private final InventoryService service;
@@ -20,63 +19,64 @@ public class InventoryController {
         this.service = service;
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProductDto>> getInventory() throws PersistenceException {
+    @GetMapping("/{merchantId}/inventory")
+    public ResponseEntity<List<ProductDto>> getInventory(@PathVariable String merchantId) throws PersistenceException {
         return ResponseEntity.ok(
-                service.getAllProducts()
+                service.getAllProducts(merchantId)
                     .stream()
                     .map(ProductDto::from)
                     .toList()
         );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProduct(@PathVariable String id) throws PersistenceException, ProductNotFoundException {
-        Product product = service.getProduct(id);
+    @GetMapping("/{merchantId}/inventory/{id}")
+    public ResponseEntity<ProductDto> getProduct(@PathVariable String merchantId, @PathVariable String id) throws PersistenceException, ProductNotFoundException {
+        Product product = service.getProduct(merchantId ,id);
         ProductDto dto = new ProductDto(product.getId(),product.getName(), product.getCost(), product.getStock());
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/{id}/restock")
-    public ResponseEntity<ProductDto> restockProduct(@PathVariable String id, @RequestParam int amount) throws PersistenceException {
-        Product product = service.restockProduct(id,amount);
+    @PostMapping("{merchantId}/inventory/{id}/restock")
+    public ResponseEntity<ProductDto> restockProduct(@PathVariable String merchantId, @PathVariable String id, @RequestParam int amount) throws PersistenceException {
+        Product product = service.restockProduct(merchantId,id,amount);
         ProductDto dto = new ProductDto(product.getId(), product.getName(), product.getCost(), product.getStock());
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping
-    public ResponseEntity<ProductDto> createProduct(@RequestParam String name,
-                                   @RequestParam double cost,
-                                   @RequestParam int stock) throws PersistenceException{
-        Product product = service.createProduct(name, cost, stock);
+    @PostMapping("/{merchantId}/inventory")
+    public ResponseEntity<ProductDto> createProduct(@PathVariable String merchantId,
+                                                    @RequestParam String name,
+                                                    @RequestParam double cost,
+                                                    @RequestParam int stock) throws PersistenceException{
+        Product product = service.createProduct(merchantId, name, cost, stock);
         ProductDto dto = new ProductDto(product.getId(), product.getName(), product.getCost(), product.getStock());
         return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable String id) throws PersistenceException {
-        service.deleteProduct(id);
+    @DeleteMapping("/{merchantId}/inventory/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String merchantId, @PathVariable String id) throws PersistenceException {
+        service.deleteProduct(merchantId, id);
         return ResponseEntity.noContent().build();
 
     }
 
-    @PutMapping("/{id}/stock")
-    public ResponseEntity<ProductDto> setStock(@PathVariable String id, @RequestParam int amount) throws PersistenceException {
-        Product product = service.setStock(id, amount);
+    @PutMapping("/{merchantId}/inventory/{id}/stock")
+    public ResponseEntity<ProductDto> setStock(@PathVariable String merchantId,@PathVariable String id, @RequestParam int amount) throws PersistenceException {
+        Product product = service.setStock(merchantId, id, amount);
         ProductDto dto = new ProductDto(product.getId(), product.getName(), product.getCost(), product.getStock());
         return ResponseEntity.ok(dto);
 
     }
 
-    @PutMapping("/{id}/price")
-    public ResponseEntity<ProductDto> setPrice(@PathVariable String id, @RequestParam double price) throws PersistenceException {
-        Product product = service.setPrice(id, price);
+    @PutMapping("/{merchantId}/inventory/{id}/price")
+    public ResponseEntity<ProductDto> setPrice(@PathVariable String merchantId, @PathVariable String id, @RequestParam double price) throws PersistenceException {
+        Product product = service.setPrice(merchantId, id, price);
         ProductDto dto = new ProductDto(product.getId(), product.getName(), product.getCost(), product.getStock());
         return ResponseEntity.ok(dto);
     }
-    @PutMapping("/{id}/name")
-    public ResponseEntity<ProductDto> setName(@PathVariable String id, @RequestParam String name) throws PersistenceException {
-        Product product = service.setName(id, name);
+    @PutMapping("/{merchantId}/inventory/{id}/name")
+    public ResponseEntity<ProductDto> setName(@PathVariable String merchantId, @PathVariable String id, @RequestParam String name) throws PersistenceException {
+        Product product = service.setName(merchantId, id, name);
         ProductDto dto = new ProductDto(product.getId(), product.getName(), product.getCost(), product.getStock());
         return ResponseEntity.ok(dto);
     }

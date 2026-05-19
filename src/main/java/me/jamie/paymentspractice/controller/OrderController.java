@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
 public class OrderController {
 
     OrderService orderService;
@@ -20,25 +19,25 @@ public class OrderController {
 
     //TODO pass status to filter by status
 
-    @GetMapping
-    public ResponseEntity<List<OrderDto>> getAllOrders() throws PersistenceException {
-        List<OrderDto> orderDtos = orderService.getAllOrders().stream().map(OrderDto::from).toList();
+    @GetMapping("/{merchantId}/orders")
+    public ResponseEntity<List<OrderDto>> getAllOrders(@PathVariable String merchantId) throws PersistenceException {
+        List<OrderDto> orderDtos = orderService.getAllOrders(merchantId).stream().map(OrderDto::from).toList();
         return ResponseEntity.ok(orderDtos);
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> getOrder(@PathVariable String id) throws PersistenceException {
-        OrderDto orderDto = orderService.getOrder(id);
+    @GetMapping("/{merchantId}/orders/{id}")
+    public ResponseEntity<OrderDto> getOrder(@PathVariable String merchantId, @PathVariable String id) throws PersistenceException {
+        OrderDto orderDto = orderService.getOrder(merchantId, id);
         return ResponseEntity.ok(orderDto);
     }
 
-    @PutMapping("/{id}/fulfil")
-    public ResponseEntity<OrderDto> markFulfilled(@PathVariable String id) throws PersistenceException {
-        OrderDto dto = orderService.fulfil(id);
+    @PutMapping("/{merchantId}/orders/{id}/fulfil")
+    public ResponseEntity<OrderDto> markFulfilled(@PathVariable String merchantId, @PathVariable String id) throws PersistenceException {
+        OrderDto dto = orderService.fulfil(merchantId, id);
         return ResponseEntity.ok(dto);
     }
-    @PutMapping("/{id}/complete")
-    public ResponseEntity<OrderDto> markCompleted(@PathVariable String id) throws PersistenceException {
-        OrderDto dto = orderService.complete(id);
+    @PutMapping("/{merchantId}/orders/{id}/complete")
+    public ResponseEntity<OrderDto> markCompleted(@PathVariable String merchantId, @PathVariable String id) throws PersistenceException {
+        OrderDto dto = orderService.complete(merchantId, id);
         return ResponseEntity.ok(dto);
     }
 

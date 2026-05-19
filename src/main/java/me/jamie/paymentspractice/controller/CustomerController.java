@@ -30,16 +30,15 @@ public class CustomerController {
     //     and use that to place order (instead of just using card method)
 
     // other things to consider
-    // whether cart is empty? need to handle this
     // whether there is enough stock?
     // taking discount code? apply it in place order?
 
     //controller shouldnt know checkout sequencing, call a service .checkout()
-    @PostMapping("/checkout")
-    public ResponseEntity<OrderDto> checkout(@RequestBody List<CheckoutItemRequest> cart)
+    @PostMapping("/{merchantId}/checkout")
+    public ResponseEntity<OrderDto> checkout(@PathVariable String merchantId, @RequestBody List<CheckoutItemRequest> cart)
             throws PersistenceException, InsufficientStockException {
 
-        Order order = orderService.placeOrder(cart, PaymentMethod.CARD);
+        Order order = orderService.placeOrder(merchantId, cart, PaymentMethod.CARD);
 
         orderService.authorizePayment(order);
         orderService.reserveStock(order);

@@ -7,6 +7,7 @@ import me.jamie.paymentspractice.service.OrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class BrowseController {
@@ -17,10 +18,10 @@ public class BrowseController {
         this.inventoryService = inventoryService;
     }
 
-    @GetMapping("/browse")
-    public String browse(Model model) throws PersistenceException {
+    @GetMapping("/{merchantId}/browse")
+    public String browse(@PathVariable String merchantId, Model model) throws PersistenceException {
 
-        model.addAttribute("products", inventoryService.getAllProducts().stream().map(ProductDto::from).toList());
+        model.addAttribute("products", inventoryService.getAllProducts(merchantId).stream().map(ProductDto::from).toList());
 
         return "browse";
     }
