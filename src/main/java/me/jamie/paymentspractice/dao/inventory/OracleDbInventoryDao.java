@@ -25,43 +25,28 @@ public class OracleDbInventoryDao implements InventoryDao {
     }
 
     @Override
-    public Product findById(String productId) throws PersistenceException, ProductNotFoundException {
-        try {
-            Optional<ProductEntity> entity = repo.findById(productId);
-            if (entity.isEmpty()) throw new ProductNotFoundException(productId);
-            return Product.fromPersistence(entity.get());
-        } catch (DataAccessException e){
-            throw new PersistenceException("Failed to retrieve product",e);
-        }
+    public ProductEntity findByMerchantIdAndId(String merchantId, String productId) throws ProductNotFoundException {
+        return repo.findByMerchantIdAndId(merchantId,productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
     }
 
     @Override
-    public List<Product> findAll() throws PersistenceException {
-        try{
-            return repo.findAll().stream().map(Product::fromPersistence).toList();
-        } catch (DataAccessException e){
-            throw new PersistenceException("Failed to retrieve products",e);
-        }
+    public List<ProductEntity> findByMerchantId(String merchantId) {
+        return repo.findByMerchantId(merchantId);
     }
 
     @Override
-    public void put(String productId, Product product) throws PersistenceException {
-        try{
-            repo.save(ProductEntity.from(product));
-        } catch (DataAccessException e){
-            throw new PersistenceException("Failed to save product",e);
-        }
+    public void save(ProductEntity product) throws PersistenceException {
+        repo.save(product);
     }
 
     @Override
-    public void remove(String productId) throws PersistenceException, ProductNotFoundException {
-        try {
-            Optional<ProductEntity> entity = repo.findById(productId);
-            if(entity.isEmpty()) throw new ProductNotFoundException(productId);
-            repo.delete(entity.get());
-        } catch (DataAccessException e){
-            throw new PersistenceException("Failed to remove product",e);
-        }
+    public void remove(String merchantId, String productId) throws ProductNotFoundException {
+        repo.deleteByMerchantIdAndId(merchantId,productId);
+    }
 
+    @Override
+    public int getStock(String merchantId, String productId) throws PersistenceException, ProductNotFoundException {
+        return this.findByMerchantIdAndId(merchantId,productId).getStock();
     }
 }

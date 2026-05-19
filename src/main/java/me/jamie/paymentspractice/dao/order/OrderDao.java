@@ -1,12 +1,12 @@
 package me.jamie.paymentspractice.dao.order;
 
-import me.jamie.paymentspractice.data.record.OrderRecord;
+import me.jamie.paymentspractice.data.entity.OrderEntity;
 import me.jamie.paymentspractice.exception.PersistenceException;
 
 import java.util.List;
 
 public interface OrderDao {
-    void save(OrderRecord order) throws PersistenceException;
-    OrderRecord findById(String orderId) throws PersistenceException;
-    List<OrderRecord> findAll() throws PersistenceException;
+    void save(OrderEntity order) throws PersistenceException;
+    OrderEntity findByMerchantIdAndId(String merchantId, String orderId) throws PersistenceException;
+    List<OrderEntity> findByMerchantId(String merchantId) throws PersistenceException;
 }
